@@ -69,5 +69,15 @@ Then open http://localhost:8501.
 
 ## Notes
 
+- **Feature → tool mapping**
+
+  | Feature | Tool(s) |
+  |---------|--------|
+  | Code explanation | context + LLM |
+  | Dependency mapping | context / cypher |
+  | Impact analysis | impact |
+  | Pattern detection | query |
+  | Documentation generation | wiki |
+
 - **Registry path:** The GitNexus index is built at Docker image build time and stored under `$HOME/.gitnexus` in the container; no Fly volume is used.
 - **VM size:** Default is 2GB RAM (works on free tier); set to 4GB in `fly.toml` if your Fly plan allows it.

@@ -404,6 +404,70 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
     }
   });
 
+  app.post('/api/tools/impact', async (req, res) => {
+    try {
+      const body = req.body ?? {};
+      const target = typeof body.target === 'string' ? body.target : '';
+      if (!target.trim()) {
+        res.status(400).json({ error: 'Missing or empty "target" in request body' });
+        return;
+      }
+      const result = await backend.callTool('impact', {
+        target: body.target,
+        direction: body.direction,
+        repo: body.repo,
+        maxDepth: body.maxDepth,
+        relationTypes: body.relationTypes,
+        includeTests: body.includeTests,
+        minConfidence: body.minConfidence,
+      });
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Backend impact failed' });
+    }
+  });
+
+  // Wiki generation: long-running (1–5+ min). Uses long timeout; caller should allow 10+ min.
+  app.post('/api/tools/wiki', async (req, res) => {
+    try {
+      const body = req.body ?? {};
+      const entry = await resolveRepo(body.repo ?? requestedRepo(req));
+      if (!entry) {
+        res.status(404).json({ error: 'Repository not found. Run: gitnexus analyze' });
+        return;
+      }
+      const { WikiGenerator } = await import('../core/wiki/generator.js');
+      const { resolveLLMConfig } = await import('../core/wiki/llm-client.js');
+      const llmConfig = await resolveLLMConfig();
+      if (!llmConfig.apiKey) {
+        res.status(400).json({
+          error: 'LLM not configured. Set OPENAI_API_KEY or GITNEXUS_API_KEY, or configure ~/.gitnexus/config.json',
+        });
+        return;
+      }
+      const kuzuPath = path.join(entry.storagePath, 'kuzu');
+      const generator = new WikiGenerator(
+        entry.path,
+        entry.storagePath,
+        kuzuPath,
+        llmConfig,
+        { force: body.force, model: body.model, baseUrl: body.baseUrl },
+        (phase, percent) => { /* optional: log progress */ },
+      );
+      const result = await generator.run();
+      const wikiDir = path.join(entry.storagePath, 'wiki');
+      res.json({
+        status: 'complete',
+        mode: result.mode,
+        pagesGenerated: result.pagesGenerated,
+        path: wikiDir,
+        failedModules: result.failedModules ?? [],
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Wiki generation failed' });
+    }
+  });
+
   // Global error handler — catch anything the route handlers miss
   app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('Unhandled error:', err);

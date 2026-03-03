@@ -81,3 +81,54 @@ def call_cypher(query: str, repo: str = "lapack") -> dict | str:
     if ok:
         return result
     return result
+
+
+def call_impact(
+    target: str,
+    direction: str = "upstream",
+    repo: str = "lapack",
+    max_depth: int = 3,
+    relation_types: list[str] | None = None,
+    include_tests: bool = False,
+    min_confidence: float | None = None,
+) -> dict | str:
+    """Call POST /api/tools/impact. Returns result dict or error string."""
+    body: dict = {
+        "target": target,
+        "direction": direction,
+        "repo": repo,
+        "maxDepth": max_depth,
+        "includeTests": include_tests,
+    }
+    if relation_types is not None:
+        body["relationTypes"] = relation_types
+    if min_confidence is not None:
+        body["minConfidence"] = min_confidence
+    result, ok = _post("/api/tools/impact", body)
+    if ok:
+        return result
+    return result
+
+
+# Wiki can take 1–5+ minutes; use long timeout.
+WIKI_TIMEOUT = 600
+
+
+def call_wiki(repo: str = "lapack", force: bool = False) -> dict | str:
+    """Call POST /api/tools/wiki. Triggers wiki generation; long-running (1–5+ min). Returns result dict or error string."""
+    url = f"{GITNEXUS_URL.rstrip('/')}/api/tools/wiki"
+    try:
+        r = requests.post(
+            url,
+            json={"repo": repo, "force": force},
+            timeout=WIKI_TIMEOUT,
+        )
+        if r.status_code != 200:
+            return f"HTTP {r.status_code}: {r.text[:500]}"
+        return r.json()
+    except requests.exceptions.Timeout:
+        return "Request timed out. Wiki generation may take 5+ minutes."
+    except requests.exceptions.ConnectionError:
+        return "Connection error: GitNexus server unreachable. Is it running?"
+    except Exception as e:
+        return str(e)

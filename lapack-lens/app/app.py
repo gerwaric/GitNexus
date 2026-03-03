@@ -8,7 +8,7 @@ import json
 import streamlit as st
 from openai import OpenAI
 
-from tools import call_query, call_context, call_cypher
+from tools import call_query, call_context, call_cypher, call_impact, call_wiki
 
 # ─── Config ─────────────────────────────────────────────────────────────
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
@@ -79,6 +79,40 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "impact",
+            "description": "Analyze the blast radius of changing a code symbol. Returns affected symbols by depth, "
+            "risk assessment, affected execution flows and modules. Use when the user asks what would be affected "
+            "if they change a routine, e.g. 'What would be affected if I change routine X?'",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "target": {"type": "string", "description": "Name of routine, function, or symbol to analyze"},
+                    "direction": {"type": "string", "description": "upstream (what depends on this) or downstream (what this depends on)", "default": "upstream"},
+                    "maxDepth": {"type": "number", "description": "Max relationship depth (default: 3)", "default": 3},
+                    "repo": {"type": "string", "description": "Repository name. Default: lapack."},
+                },
+                "required": ["target", "direction"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "wiki",
+            "description": "Generate repository documentation (wiki) from the knowledge graph. Use when the user asks "
+            "for generated docs, module overview, or to document the codebase. Warning: may take 1–5 minutes.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "repo": {"type": "string", "description": "Repository name. Default: lapack."},
+                    "force": {"type": "boolean", "description": "Force full regeneration (default: false)", "default": False},
+                },
+            },
+        },
+    },
 ]
 
 SYSTEM_PROMPT = """You answer questions about the LAPACK (Linear Algebra PACKage) codebase using GitNexus code intelligence.
@@ -86,6 +120,8 @@ SYSTEM_PROMPT = """You answer questions about the LAPACK (Linear Algebra PACKage
 - Use the query_lapack tool for natural-language or keyword search (e.g. "matrix multiplication", "dgemm", "eigenvalue solver").
 - Use the context tool to get a 360-degree view of a specific symbol (function, subroutine, file) — callers, callees, execution flows.
 - Use the cypher tool only when you need a custom graph query.
+- Use the impact tool when the user asks what would be affected by changing a routine (e.g. "What would break if I change X?").
+- Use the wiki tool when the user asks for generated documentation or a module overview (note: takes 1–5 minutes).
 
 The default repository is "lapack". Be concise; cite file paths and symbol names when relevant."""
 
@@ -115,6 +151,18 @@ def run_tool(name: str, arguments: dict) -> str:
         )
     elif name == "cypher":
         out = call_cypher(query=args.get("query", ""), repo=repo)
+    elif name == "impact":
+        out = call_impact(
+            target=args.get("target", ""),
+            direction=args.get("direction", "upstream"),
+            repo=repo,
+            max_depth=args.get("maxDepth", 3),
+            relation_types=args.get("relationTypes"),
+            include_tests=args.get("includeTests", False),
+            min_confidence=args.get("minConfidence"),
+        )
+    elif name == "wiki":
+        out = call_wiki(repo=repo, force=args.get("force", False))
     else:
         return f"Unknown tool: {name}"
 
