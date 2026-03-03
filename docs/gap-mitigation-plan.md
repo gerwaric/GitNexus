@@ -153,21 +153,21 @@ Optional follow-up when time allows: §2.3 (full query interface (A)).
 
 ## 9. Done criteria checklist (per work item)
 
-- [ ] **1.1** GitNexus investigation notes/outline (embeddings, storage, search, tools).
-- [ ] **1.2** `docs/rag-architecture.md` written; 1–2 pages; all 6 template sections; full mapping to assignment.
-- [ ] **1.3** Design rationale in RAG doc for storage, embeddings, chunking, hybrid search.
+- [x] **1.1** GitNexus investigation notes/outline (embeddings, storage, search, tools).
+- [x] **1.2** `docs/rag-architecture.md` written; 1–2 pages; all 6 template sections; full mapping to assignment.
+- [x] **1.3** Design rationale in RAG doc for storage, embeddings, chunking, hybrid search.
 - [ ] **2.1** System prompt / tool behavior ensure file/line + ```fortran code in answers.
 - [ ] **2.2** Verified in UI (markdown code blocks render).
-- [ ] **3.1** `POST /api/tools/impact` implemented and verified.
-- [ ] **3.2** Lapack Lens: `call_impact`, tool def, tool loop handles impact.
-- [ ] **3.3** `POST /api/tools/wiki` implemented (triggers wiki generation; long timeout or async).
-- [ ] **3.4** Lapack Lens: `call_wiki`, tool def, tool loop handles wiki.
-- [ ] **3.5** Feature → tool mapping table in README or RAG doc (includes impact + wiki).
+- [x] **3.1** `POST /api/tools/impact` implemented and verified.
+- [x] **3.2** Lapack Lens: `call_impact`, tool def, tool loop handles impact.
+- [x] **3.3** `POST /api/tools/wiki` implemented (triggers wiki generation; long timeout or async).
+- [x] **3.4** Lapack Lens: `call_wiki`, tool def, tool loop handles wiki.
+- [x] **3.5** Feature → tool mapping table in README or RAG doc (includes impact + wiki).
 - [ ] **4.1** Performance script design (input, output, how backend is called).
 - [ ] **4.2** Script implemented and producing a report.
 - [ ] **4.3** Script run; latency and ingestion time recorded.
 - [ ] **4.4** RAG doc updated with performance results; script documented.
-- [ ] **5.1** LAPACK test scenarios defined (6–10 queries in file or doc).
+- [x] **5.1** LAPACK test scenarios defined (6–10 queries in file or doc).
 - [ ] **5.2** Outcomes documented per scenario.
 - [ ] **5.3** Scenarios wired into performance script.
-- [ ] **6.1** README includes https://lapack-lens.fly.dev .
+- [x] **6.1** README includes https://lapack-lens.fly.dev .
