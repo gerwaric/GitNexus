@@ -169,24 +169,24 @@ Use this as a checklist when implementing in another session. Tasks are ordered 
 
 ## Summary checklist
 
-- [ ] **1.1** Add `POST /api/tools/query` in `gitnexus/src/server/api.ts`
-- [ ] **1.2** Add `POST /api/tools/context` in `gitnexus/src/server/api.ts`
-- [ ] **1.3** (Optional) Add `POST /api/tools/cypher`
-- [ ] **1.4** Verify backend endpoints locally with curl
-- [ ] **2.1** Create `lapack-lens/app/` and `requirements.txt`
-- [ ] **2.2** Implement backend client (`tools.py` or equivalent)
-- [ ] **2.3** Implement OpenAI tool loop in Streamlit
-- [ ] **2.4** Build Streamlit chat UI
-- [ ] **2.5** Test Streamlit locally (backend running separately)
-- [ ] **3.1** Write Dockerfile (Node + Python, clone LAPACK, index, Streamlit)
-- [ ] **3.2** Entrypoint script (start server, wait for health, run Streamlit)
-- [ ] **3.3** docker-compose.yml for local run
-- [ ] **3.4** .env.example and .gitignore
+- [x] **1.1** Add `POST /api/tools/query` in `gitnexus/src/server/api.ts`
+- [x] **1.2** Add `POST /api/tools/context` in `gitnexus/src/server/api.ts`
+- [x] **1.3** (Optional) Add `POST /api/tools/cypher`
+- [x] **1.4** Verify backend endpoints locally with curl
+- [x] **2.1** Create `lapack-lens/app/` and `requirements.txt`
+- [x] **2.2** Implement backend client (`tools.py` or equivalent)
+- [x] **2.3** Implement OpenAI tool loop in Streamlit
+- [x] **2.4** Build Streamlit chat UI
+- [x] **2.5** Test Streamlit locally (backend running separately)
+- [x] **3.1** Write Dockerfile (Node + Python, clone LAPACK, index, Streamlit)
+- [x] **3.2** Entrypoint script (start server, wait for health, run Streamlit)
+- [x] **3.3** docker-compose.yml for local run
+- [x] **3.4** .env.example and .gitignore
 - [ ] **3.5** Local Docker verification
-- [ ] **4.1** fly.toml (app name, 4GB, port 8501)
+- [x] **4.1** fly.toml (app name, 4GB, port 8501)
 - [ ] **4.2** Set OPENAI_API_KEY secret on Fly
 - [ ] **4.3** Deploy and verify on Fly
-- [ ] **4.4** lapack-lens/README.md with run and deploy instructions
+- [x] **4.4** lapack-lens/README.md with run and deploy instructions
 
 ---
 

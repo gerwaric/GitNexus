@@ -348,6 +348,62 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
     }
   });
 
+  // ─── REST tool endpoints (mirror MCP tools for Streamlit / plain HTTP) ───
+
+  app.post('/api/tools/query', async (req, res) => {
+    try {
+      const body = req.body ?? {};
+      const query = typeof body.query === 'string' ? body.query : '';
+      if (!query.trim()) {
+        res.status(400).json({ error: 'Missing or empty "query" in request body' });
+        return;
+      }
+      const result = await backend.callTool('query', {
+        query: body.query,
+        repo: body.repo,
+        limit: body.limit,
+        max_symbols: body.max_symbols,
+        include_content: body.include_content,
+        task_context: body.task_context,
+        goal: body.goal,
+      });
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Backend query failed' });
+    }
+  });
+
+  app.post('/api/tools/context', async (req, res) => {
+    try {
+      const body = req.body ?? {};
+      const result = await backend.callTool('context', {
+        name: body.name,
+        uid: body.uid,
+        file_path: body.file_path,
+        repo: body.repo,
+        include_content: body.include_content,
+      });
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Backend context failed' });
+    }
+  });
+
+  app.post('/api/tools/cypher', async (req, res) => {
+    try {
+      const body = req.body ?? {};
+      const query = typeof body.query === 'string' ? body.query : '';
+      if (!query.trim()) {
+        res.status(400).json({ error: 'Missing or empty "query" in request body' });
+        return;
+      }
+      const result = await backend.callTool('cypher', { query: body.query, repo: body.repo });
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Backend cypher failed' });
+    }
+  });
+
   // Global error handler — catch anything the route handlers miss
   app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('Unhandled error:', err);

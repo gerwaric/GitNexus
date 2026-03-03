@@ -1,0 +1,15 @@
+# Local run: from repo root: docker compose -f lapack-lens/docker-compose.yml up --build
+# Requires OPENAI_API_KEY (e.g. in lapack-lens/.env or export).
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: lapack-lens/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - GITNEXUS_URL=http://127.0.0.1:4747
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env

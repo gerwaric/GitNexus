@@ -1,0 +1,20 @@
+# Deploy from repo root: fly deploy -f lapack-lens/fly.toml
+# Set secret: fly secrets set OPENAI_API_KEY=sk-... -a lapack-lens
+
+app = "lapack-lens"
+
+[build]
+  dockerfile = "lapack-lens/Dockerfile"
+  # Build context = current directory when running fly deploy; run from repo root
+
+[http_service]
+  internal_port = 8501
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+
+[[vm]]
+  memory = "4gb"
+
+[env]
+  GITNEXUS_URL = "http://127.0.0.1:4747"
