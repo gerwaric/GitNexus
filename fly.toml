@@ -1,11 +1,10 @@
-# Lapack Lens — same config as repo root fly.toml; deploy from repo root: fly deploy -a lapack-lens
+# Lapack Lens — deploy from repo root: fly deploy -a lapack-lens
 # Set secret: fly secrets set OPENAI_API_KEY=sk-... -a lapack-lens
 
 app = "lapack-lens"
 
 [build]
   dockerfile = "lapack-lens/Dockerfile"
-  # Build context = current directory when running fly deploy; run from repo root
 
 [http_service]
   internal_port = 8501

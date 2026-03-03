@@ -182,10 +182,10 @@ Use this as a checklist when implementing in another session. Tasks are ordered 
 - [x] **3.2** Entrypoint script (start server, wait for health, run Streamlit)
 - [x] **3.3** docker-compose.yml for local run
 - [x] **3.4** .env.example and .gitignore
-- [ ] **3.5** Local Docker verification
-- [x] **4.1** fly.toml (app name, 4GB, port 8501)
-- [ ] **4.2** Set OPENAI_API_KEY secret on Fly
-- [ ] **4.3** Deploy and verify on Fly
+- [x] **3.5** Local Docker verification
+- [x] **4.1** fly.toml (app name, 2GB/4GB, port 8501)
+- [x] **4.2** Set OPENAI_API_KEY secret on Fly
+- [x] **4.3** Deploy and verify on Fly
 - [x] **4.4** lapack-lens/README.md with run and deploy instructions
 
 ---

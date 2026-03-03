@@ -42,13 +42,13 @@ Then open http://localhost:8501.
 
 ## Deploy to Fly.io
 
-**Prereqs:** [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/) and a Fly account (paid plan required for 4GB VM).
+**Prereqs:** [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/) and a Fly account (2GB is enough; paid plan for 4GB VM).
 
-1. From the **repo root**:
+1. From the **repo root**, create the app if needed:
    ```bash
-   fly launch -a lapack-lens --config lapack-lens/fly.toml --no-deploy
+   fly apps create lapack-lens
    ```
-   (Or create the app once: `fly apps create lapack-lens`.)
+   (Or `fly launch -a lapack-lens --no-deploy` using the root `fly.toml`.)
 
 2. Set the OpenAI API key secret:
    ```bash
@@ -57,8 +57,9 @@ Then open http://localhost:8501.
 
 3. Deploy (build context is repo root; first build is slow due to LAPACK indexing):
    ```bash
-   fly deploy -a lapack-lens -f lapack-lens/fly.toml
+   fly deploy -a lapack-lens
    ```
+   Use the root `fly.toml` (repo root); it references `lapack-lens/Dockerfile`.
 
 4. Open `https://lapack-lens.fly.dev` (or the app’s assigned URL) and verify the chat uses the LAPACK index.
 
@@ -67,4 +68,4 @@ Then open http://localhost:8501.
 ## Notes
 
 - **Registry path:** The GitNexus index is built at Docker image build time and stored under `$HOME/.gitnexus` in the container; no Fly volume is used.
-- **4GB VM:** The app is configured for 4GB RAM in `lapack-lens/fly.toml` for better performance while the app is running.
+- **VM size:** Default is 2GB RAM (works on free tier); set to 4GB in `fly.toml` if your Fly plan allows it.
