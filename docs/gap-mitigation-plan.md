@@ -156,7 +156,7 @@ Optional follow-up when time allows: §2.3 (full query interface (A)).
 - [x] **1.1** GitNexus investigation notes/outline (embeddings, storage, search, tools).
 - [x] **1.2** `docs/rag-architecture.md` written; 1–2 pages; all 6 template sections; full mapping to assignment.
 - [x] **1.3** Design rationale in RAG doc for storage, embeddings, chunking, hybrid search.
-- [ ] **2.1** System prompt / tool behavior ensure file/line + ```fortran code in answers.
+- [x] **2.1** System prompt / tool behavior ensure file/line + ```fortran code in answers.
 - [ ] **2.2** Verified in UI (markdown code blocks render).
 - [x] **3.1** `POST /api/tools/impact` implemented and verified.
 - [x] **3.2** Lapack Lens: `call_impact`, tool def, tool loop handles impact.

@@ -123,6 +123,11 @@ SYSTEM_PROMPT = """You answer questions about the LAPACK (Linear Algebra PACKage
 - Use the impact tool when the user asks what would be affected by changing a routine (e.g. "What would break if I change X?").
 - Use the wiki tool when the user asks for generated documentation or a module overview (note: takes 1–5 minutes).
 
+When answering:
+- Always cite file paths and line ranges for code you refer to (e.g. path:start-end or filename:line).
+- When showing source code, use markdown code blocks with the fortran language tag: ```fortran ... ```.
+- If the user asks for code or a snippet, use include_content: true when calling query_lapack or context so you can show the actual code in a ```fortran block.
+
 The default repository is "lapack". Be concise; cite file paths and symbol names when relevant."""
 
 
