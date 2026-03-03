@@ -21,13 +21,15 @@ So the failure is an **ABI / language version mismatch**, not a missing file or 
 
 **tree-sitter-fortran v0.1.0** (Git tag `v0.1.0`, commit `4a593dd`) declares `peerDependencies: { "tree-sitter": "^0.21.0" }` and was built with **tree-sitter-cli ^0.20.0**, so its grammar uses a language version in the 13–14 range that tree-sitter 0.21 accepts.
 
+**GitNexus uses a vendored copy:** The dependency is **`file:vendor/tree-sitter-fortran`**, i.e. **vendor/tree-sitter-fortran** in the gitnexus package, containing the v0.1.0 source with **devDependencies removed** (including **tree-sitter-cli**). That avoids install failures on platforms where tree-sitter-cli’s install script fails (e.g. linux arm64, or missing prebuilds). The vendored package keeps only the `install` script (`node-gyp-build`) so the native addon builds on install. To refresh the vendor from upstream v0.1.0, run **`./scripts/vendor-tree-sitter-fortran.sh`** from the gitnexus directory (or download the [v0.1.0 tarball](https://github.com/stadelmanma/tree-sitter-fortran/archive/refs/tags/v0.1.0.tar.gz), extract into `vendor/tree-sitter-fortran`, and remove `devDependencies` from its `package.json`).
+
+If you are not using the vendored copy:
+
 - **In package.json**, pin the dependency:
   ```json
   "tree-sitter-fortran": "github:stadelmanma/tree-sitter-fortran#v0.1.0"
   ```
-- Run `npm install`. If install fails (e.g. on **linux arm64**) because the v0.1.0 package’s **devDependencies** pull in **tree-sitter-cli** and that fails to install on your platform, you can:
-  - Install from a **tarball** of the tag and then build only the native addon (`node-gyp-build`), or
-  - Use a **fork** that drops or makes optional the devDeps that break on your platform.
+- Run `npm install`. If install fails (e.g. on **linux arm64**) because the v0.1.0 package’s **devDependencies** pull in **tree-sitter-cli** and that fails to install on your platform, use the **vendored** approach above or a tarball/fork.
 
 Once the v0.1.0 grammar is installed and its native addon is built, `loadLanguage(Fortran)` and the pipeline will work with tree-sitter 0.21.
 
@@ -42,9 +44,10 @@ Once the v0.1.0 grammar is installed and its native addon is built, `loadLanguag
 ## Current state
 
 - **tree-sitter** is left at **^0.21.0** so the existing grammar stack and Node 20 build keep working.
-- **tree-sitter-fortran** is installed from GitHub (default branch = v0.5.1) with **legacy-peer-deps**. At runtime, `loadLanguage(Fortran)` throws a **TypeError** due to ABI mismatch; the parser-loader and parse-worker catch it and rethrow a clear error pointing to this doc and the v0.1.0 fix. The parser-loader unit test accepts either success or that TypeError.
+- **tree-sitter-fortran** is **vendored** at **vendor/tree-sitter-fortran** (v0.1.0 with devDependencies removed). The package.json dependency is **`file:vendor/tree-sitter-fortran`**, so Fortran parsing works on all platforms (including linux arm64/amd64) without the tree-sitter-cli install issue. If you use the GitHub ref instead and get the default v0.5.1, `loadLanguage(Fortran)` throws; the parser-loader and parse-worker rethrow a clear error pointing to this doc.
 
 ## If you want Fortran parsing to work
 
-1. **Recommended:** Stay on tree-sitter **0.21** and pin **tree-sitter-fortran** to **v0.1.0** (see [Solution: use tree-sitter-fortran v0.1.0](#solution-use-tree-sitter-fortran-v010-for-tree-sitter-021) above). On some platforms (e.g. linux arm64), installing from git#v0.1.0 may fail due to the package’s devDependencies; use a tarball or fork if needed.
-2. **Alternative:** Upgrade to **tree-sitter 0.25** with Node 20, update all grammar deps to 0.25-compatible versions, and fix any API/query changes; then tree-sitter-fortran from GitHub may still declare peer 0.26 and need legacy-peer-deps or a fork that targets 0.25.
+1. **Default (this repo):** Use the **vendored** tree-sitter-fortran (**`file:vendor/tree-sitter-fortran`**). It is v0.1.0 with devDependencies removed, so `npm install` works on linux amd64/arm64 and other platforms without pulling in tree-sitter-cli.
+2. **Alternative:** Pin **tree-sitter-fortran** to **v0.1.0** from GitHub (see [Solution](#solution-use-tree-sitter-fortran-v010-for-tree-sitter-021)). On some platforms (e.g. linux arm64), installing from git#v0.1.0 may fail due to the package’s devDependencies; use the vendored copy or a tarball/fork.
+3. **Upgrade path:** Upgrade to **tree-sitter 0.25** with Node 20, update all grammar deps, and fix any API/query changes; then tree-sitter-fortran from GitHub may still declare peer 0.26 and need legacy-peer-deps or a fork that targets 0.25.
