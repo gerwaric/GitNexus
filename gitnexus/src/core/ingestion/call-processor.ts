@@ -40,6 +40,10 @@ const FUNCTION_NODE_TYPES = new Set([
   // Kotlin (function_declaration already included above via JS/TS)
   'anonymous_function',
   'lambda_literal',
+  // Fortran
+  'function_statement',
+  'subroutine_statement',
+  'module_procedure_statement',
   // PHP — no additional node types needed
   // Swift
   'init_declaration',
@@ -115,6 +119,15 @@ const findEnclosingFunction = (
                            parent.children?.find((c: any) => c.type === 'identifier');
           funcName = nameNode?.text;
         }
+      } else if (
+        current.type === 'function_statement' ||
+        current.type === 'subroutine_statement' ||
+        current.type === 'module_procedure_statement'
+      ) {
+        // Fortran procedures: name field or identifier child
+        const nameNode = current.childForFieldName?.('name') ||
+          current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
+        funcName = nameNode?.text;
       }
       
       if (funcName) {

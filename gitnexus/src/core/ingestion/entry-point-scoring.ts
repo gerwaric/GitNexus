@@ -103,6 +103,13 @@ const ENTRY_POINT_PATTERNS: Record<string, RegExp[]> = {
     /^Start$/,                // Start methods
   ],
 
+  // Fortran — program/main entry and common procedure names
+  'fortran': [
+    /^main$/,                 // main program
+    /^(run|solve|compute)$/i, // common entry procedure names
+    /^program_/,              // program_* convention
+  ],
+
   // Swift / iOS
   'swift': [
     /^viewDidLoad$/,                  // UIKit lifecycle

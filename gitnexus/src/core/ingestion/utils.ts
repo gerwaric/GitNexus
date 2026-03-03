@@ -57,6 +57,9 @@ export const getLanguageFromFilename = (filename: string): SupportedLanguages | 
     return SupportedLanguages.PHP;
   }
   if (filename.endsWith('.swift')) return SupportedLanguages.Swift;
+  // Fortran: .f90 before .f so file.f90 is recognized when both could match
+  if (filename.endsWith('.f90')) return SupportedLanguages.Fortran;
+  if (filename.endsWith('.f')) return SupportedLanguages.Fortran;
   return null;
 };
 

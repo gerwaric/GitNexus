@@ -11,6 +11,7 @@ import Go from 'tree-sitter-go';
 import Rust from 'tree-sitter-rust';
 import Kotlin from 'tree-sitter-kotlin';
 import PHP from 'tree-sitter-php';
+import Fortran from 'tree-sitter-fortran';
 import { createRequire } from 'node:module';
 import { SupportedLanguages } from '../../../config/supported-languages.js';
 import { LANGUAGE_QUERIES } from '../tree-sitter-queries.js';
@@ -126,6 +127,7 @@ const languageMap: Record<string, any> = {
   [SupportedLanguages.Rust]: Rust,
   [SupportedLanguages.Kotlin]: Kotlin,
   [SupportedLanguages.PHP]: PHP.php_only,
+  [SupportedLanguages.Fortran]: Fortran,
   ...(Swift ? { [SupportedLanguages.Swift]: Swift } : {}),
 };
 
@@ -257,6 +259,33 @@ const isNodeExported = (node: any, name: string, language: string): boolean => {
       }
       return false;
 
+    // Fortran: Default public. PRIVATE when grammar exposes it (declaration or preceding PRIVATE).
+    case 'fortran': {
+      let defOrName = node;
+      let n: any = current;
+      while (n) {
+        const t = n.type;
+        if (t === 'function_statement' || t === 'subroutine_statement' ||
+            t === 'module_procedure_statement' || t === 'program_statement' ||
+            t === 'module_statement' || t === 'submodule_statement') {
+          defOrName = n;
+          break;
+        }
+        n = n.parent;
+      }
+      const text = (defOrName?.text || '').trimStart();
+      if (/\bPRIVATE\b/i.test(text)) return false;
+      if (current?.parent) {
+        const parent = current.parent;
+        for (let i = 0; i < parent.childCount; i++) {
+          const sib = parent.child(i);
+          if (sib === defOrName || sib === current) break;
+          if (sib?.text && /\bPRIVATE\b/i.test(sib.text)) return false;
+        }
+      }
+      return true;
+    }
+
     default:
       return false;
   }
@@ -278,6 +307,8 @@ const FUNCTION_NODE_TYPES = new Set([
   'anonymous_function',
   // Swift initializers/deinitializers
   'init_declaration', 'deinit_declaration',
+  // Fortran
+  'function_statement', 'subroutine_statement', 'module_procedure_statement',
 ]);
 
 /** Walk up AST to find enclosing function, return its generateId or null for top-level */
@@ -324,6 +355,14 @@ const findEnclosingFunctionId = (node: any, filePath: string): string | null => 
             parent.children?.find((c: any) => c.type === 'identifier');
           funcName = nameNode?.text;
         }
+      } else if (
+        current.type === 'function_statement' ||
+        current.type === 'subroutine_statement' ||
+        current.type === 'module_procedure_statement'
+      ) {
+        const nameNode = current.childForFieldName?.('name') ||
+          current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
+        funcName = nameNode?.text;
       }
 
       if (funcName) {
@@ -592,7 +631,10 @@ const processBatch = (files: ParseWorkerInput[], onProgress?: (filesProcessed: n
       try {
         setLanguage(language, regularFiles[0].path);
         processFileGroup(regularFiles, language, queryString, result, onFileProcessed);
-      } catch {
+      } catch (err) {
+        if (language === SupportedLanguages.Fortran) {
+          throw err;
+        }
         // parser unavailable — skip this language group
       }
     }
@@ -602,7 +644,10 @@ const processBatch = (files: ParseWorkerInput[], onProgress?: (filesProcessed: n
       try {
         setLanguage(language, tsxFiles[0].path);
         processFileGroup(tsxFiles, language, queryString, result, onFileProcessed);
-      } catch {
+      } catch (err) {
+        if (language === SupportedLanguages.Fortran) {
+          throw err;
+        }
         // parser unavailable — skip this language group
       }
     }

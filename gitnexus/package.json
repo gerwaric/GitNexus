@@ -74,6 +74,7 @@
     "tree-sitter-python": "^0.21.0",
     "tree-sitter-rust": "^0.21.0",
     "tree-sitter-typescript": "^0.21.0",
+    "tree-sitter-fortran": "github:stadelmanma/tree-sitter-fortran",
     "uuid": "^13.0.0"
   },
   "optionalDependencies": {
@@ -91,6 +92,6 @@
     "vitest": "^4.0.18"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   }
 }

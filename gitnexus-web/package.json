@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:fortran-wasm": "bash scripts/build-fortran-wasm.sh",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,0 +1,2 @@
+# Fortran WASM is built by: npm run build:fortran-wasm
+# Output: tree-sitter-fortran.wasm

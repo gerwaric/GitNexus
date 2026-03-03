@@ -105,6 +105,33 @@ const isNodeExported = (node: any, name: string, language: string): boolean => {
     case 'cpp':
       return false;
     
+    // Fortran: Default public. PRIVATE when grammar exposes it (declaration or preceding PRIVATE).
+    case 'fortran': {
+      let defOrName = node;
+      let n: any = current;
+      while (n) {
+        const t = n.type;
+        if (t === 'function_statement' || t === 'subroutine_statement' ||
+            t === 'module_procedure_statement' || t === 'program_statement' ||
+            t === 'module_statement' || t === 'submodule_statement') {
+          defOrName = n;
+          break;
+        }
+        n = n.parent;
+      }
+      const text = (defOrName?.text || '').trimStart();
+      if (/\bPRIVATE\b/i.test(text)) return false;
+      if (current?.parent) {
+        const parent = current.parent;
+        for (let i = 0; i < parent.childCount; i++) {
+          const sib = parent.child(i);
+          if (sib === defOrName || sib === current) break;
+          if (sib?.text && /\bPRIVATE\b/i.test(sib.text)) return false;
+        }
+      }
+      return true;
+    }
+    
     default:
       return false;
   }

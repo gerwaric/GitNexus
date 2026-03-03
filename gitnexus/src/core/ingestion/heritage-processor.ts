@@ -14,6 +14,7 @@ import { loadParser, loadLanguage } from '../tree-sitter/parser-loader.js';
 import { LANGUAGE_QUERIES } from './tree-sitter-queries.js';
 import { generateId } from '../../lib/utils.js';
 import { getLanguageFromFilename, yieldToEventLoop } from './utils.js';
+import { SupportedLanguages } from '../../config/supported-languages.js';
 import type { ExtractedHeritage } from './workers/parse-worker.js';
 
 export const processHeritage = async (
@@ -75,18 +76,20 @@ export const processHeritage = async (
         captureMap[c.name] = c.node;
       });
 
-      // EXTENDS: Class extends another Class
+      // EXTENDS: Class extends another Class (Fortran: derived type extends base → Struct)
       if (captureMap['heritage.class'] && captureMap['heritage.extends']) {
         const className = captureMap['heritage.class'].text;
         const parentClassName = captureMap['heritage.extends'].text;
+        const childLabel = language === SupportedLanguages.Fortran ? 'Struct' : 'Class';
+        const parentLabel = language === SupportedLanguages.Fortran ? 'Struct' : 'Class';
 
-        // Resolve both class IDs
+        // Resolve both class/struct IDs
         const childId = symbolTable.lookupExact(file.path, className) ||
                         symbolTable.lookupFuzzy(className)[0]?.nodeId ||
-                        generateId('Class', `${file.path}:${className}`);
+                        generateId(childLabel, `${file.path}:${className}`);
         
         const parentId = symbolTable.lookupFuzzy(parentClassName)[0]?.nodeId ||
-                         generateId('Class', `${parentClassName}`);
+                         generateId(parentLabel, `${parentClassName}`);
 
         if (childId && parentId && childId !== parentId) {
           const relId = generateId('EXTENDS', `${childId}->${parentId}`);
@@ -182,12 +185,16 @@ export const processHeritageFromExtracted = async (
     const h = extractedHeritage[i];
 
     if (h.kind === 'extends') {
+      const lang = getLanguageFromFilename(h.filePath);
+      const childLabel = lang === SupportedLanguages.Fortran ? 'Struct' : 'Class';
+      const parentLabel = lang === SupportedLanguages.Fortran ? 'Struct' : 'Class';
+
       const childId = symbolTable.lookupExact(h.filePath, h.className) ||
                       symbolTable.lookupFuzzy(h.className)[0]?.nodeId ||
-                      generateId('Class', `${h.filePath}:${h.className}`);
+                      generateId(childLabel, `${h.filePath}:${h.className}`);
 
       const parentId = symbolTable.lookupFuzzy(h.parentName)[0]?.nodeId ||
-                       generateId('Class', `${h.parentName}`);
+                       generateId(parentLabel, `${h.parentName}`);
 
       if (childId && parentId && childId !== parentId) {
         graph.addRelationship({

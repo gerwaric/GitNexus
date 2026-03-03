@@ -33,6 +33,9 @@ export const getLanguageFromFilename = (filename: string): SupportedLanguages | 
   }
   // Swift
   if (filename.endsWith('.swift')) return SupportedLanguages.Swift;
+  // Fortran: .f90 before .f (same order as CLI)
+  if (filename.endsWith('.f90')) return SupportedLanguages.Fortran;
+  if (filename.endsWith('.f')) return SupportedLanguages.Fortran;
   return null;
 };
 

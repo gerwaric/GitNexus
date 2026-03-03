@@ -216,6 +216,8 @@ const EXTENSIONS = [
   '.php', '.phtml',
   // Swift
   '.swift',
+  // Fortran (.f90 before .f per design; .inc for INCLUDE)
+  '.f90', '.f', '.inc',
 ];
 
 /**
@@ -416,6 +418,12 @@ const resolveImportPath = (
     // Fall through to generic resolution if Rust-specific didn't match
   }
 
+  // ---- Fortran USE: module name = file stem; try .f90 then .f (first match) ----
+  if (language === SupportedLanguages.Fortran && !importPath.includes('/')) {
+    const fortranResult = resolveFortranUseModule(importPath, allFiles, index);
+    if (fortranResult) return cache(fortranResult);
+  }
+
   // ---- Generic relative import resolution (./ and ../) ----
   const currentDir = currentFile.split('/').slice(0, -1);
   const parts = importPath.split('/');
@@ -530,6 +538,30 @@ function tryRustModulePath(modulePath: string, allFiles: Set<string>): string | 
     if (allFiles.has(parentPath + '/mod.rs')) return parentPath + '/mod.rs';
   }
 
+  return null;
+}
+
+/** Fortran USE module_name → file stem; try .f90 then .f (first match wins). */
+function resolveFortranUseModule(
+  moduleName: string,
+  allFiles: Set<string>,
+  index?: SuffixIndex,
+): string | null {
+  const extensions = ['.f90', '.f'];
+  for (const ext of extensions) {
+    const stem = moduleName + ext;
+    if (index) {
+      const result = index.get(stem) ?? index.getInsensitive(stem);
+      if (result) return result;
+    } else {
+      for (const filePath of allFiles) {
+        const normalized = filePath.replace(/\\/g, '/');
+        if (normalized.endsWith(stem) || normalized.toLowerCase().endsWith(stem.toLowerCase())) {
+          return filePath;
+        }
+      }
+    }
+  }
   return null;
 }
 

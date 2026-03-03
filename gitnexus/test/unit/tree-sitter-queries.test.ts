@@ -11,6 +11,7 @@ import {
   RUST_QUERIES,
   PHP_QUERIES,
   SWIFT_QUERIES,
+  FORTRAN_QUERIES,
   LANGUAGE_QUERIES,
 } from '../../src/core/ingestion/tree-sitter-queries.js';
 import { SupportedLanguages } from '../../src/config/supported-languages.js';
@@ -37,6 +38,7 @@ describe('tree-sitter queries', () => {
       expect(LANGUAGE_QUERIES[SupportedLanguages.Rust]).toBe(RUST_QUERIES);
       expect(LANGUAGE_QUERIES[SupportedLanguages.PHP]).toBe(PHP_QUERIES);
       expect(LANGUAGE_QUERIES[SupportedLanguages.Swift]).toBe(SWIFT_QUERIES);
+      expect(LANGUAGE_QUERIES[SupportedLanguages.Fortran]).toBe(FORTRAN_QUERIES);
     });
   });
 
@@ -312,6 +314,41 @@ describe('tree-sitter queries', () => {
 
     it('captures actors as classes', () => {
       expect(SWIFT_QUERIES).toContain('"actor"');
+    });
+  });
+
+  describe('Fortran queries', () => {
+    it('has Fortran query defined and non-empty', () => {
+      expect(LANGUAGE_QUERIES[SupportedLanguages.Fortran]).toBeDefined();
+      expect(LANGUAGE_QUERIES[SupportedLanguages.Fortran].length).toBeGreaterThan(0);
+    });
+
+    it('captures program, module, submodule as module definitions', () => {
+      expect(FORTRAN_QUERIES).toContain('program_statement');
+      expect(FORTRAN_QUERIES).toContain('module_statement');
+      expect(FORTRAN_QUERIES).toContain('submodule_statement');
+      expect(FORTRAN_QUERIES).toContain('@definition.module');
+    });
+
+    it('captures function, subroutine, module_procedure', () => {
+      expect(FORTRAN_QUERIES).toContain('function_statement');
+      expect(FORTRAN_QUERIES).toContain('subroutine_statement');
+      expect(FORTRAN_QUERIES).toContain('module_procedure_statement');
+      expect(FORTRAN_QUERIES).toContain('@definition.function');
+    });
+
+    it('captures USE and INCLUDE as imports', () => {
+      expect(FORTRAN_QUERIES).toContain('use_statement');
+      expect(FORTRAN_QUERIES).toContain('include_statement');
+      expect(FORTRAN_QUERIES).toContain('@import');
+    });
+
+    it('captures calls and heritage', () => {
+      expect(FORTRAN_QUERIES).toContain('call_expression');
+      expect(FORTRAN_QUERIES).toContain('subroutine_call');
+      expect(FORTRAN_QUERIES).toContain('@call');
+      expect(FORTRAN_QUERIES).toContain('derived_type_statement');
+      expect(FORTRAN_QUERIES).toContain('@heritage');
     });
   });
 });

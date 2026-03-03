@@ -35,6 +35,10 @@ const FUNCTION_NODE_TYPES = new Set([
   // Rust
   'function_item',
   'impl_item', // Methods inside impl blocks
+  // Fortran
+  'function_statement',
+  'subroutine_statement',
+  'module_procedure_statement',
 ]);
 
 /**
@@ -100,6 +104,15 @@ const findEnclosingFunction = (
                            parent.children?.find((c: any) => c.type === 'identifier');
           funcName = nameNode?.text;
         }
+      } else if (
+        current.type === 'function_statement' ||
+        current.type === 'subroutine_statement' ||
+        current.type === 'module_procedure_statement'
+      ) {
+        // Fortran procedures
+        const nameNode = current.childForFieldName?.('name') ||
+          current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
+        funcName = nameNode?.text;
       }
       
       if (funcName) {

@@ -529,6 +529,39 @@ export const SWIFT_QUERIES = `
   (inheritance_specifier inherits_from: (user_type (type_identifier) @heritage.extends))) @heritage
 `;
 
+// Fortran queries - tree-sitter-fortran (program→Module, module/submodule→Module, procedures→Function)
+export const FORTRAN_QUERIES = `
+; Program unit (map to Module per design)
+(program_statement _name: (_) @name) @definition.module
+
+; Module and submodule (map to Module)
+(module_statement _name: (_) @name) @definition.module
+(submodule_statement _name: (_) @name) @definition.module
+
+; Procedures (map to Function)
+(function_statement name: (_) @name) @definition.function
+(subroutine_statement name: (_) @name) @definition.function
+(module_procedure_statement name: (_) @name) @definition.function
+
+; Derived types (map to Struct for EXTENDS)
+(derived_type_statement _type_name: (identifier) @name) @definition.struct
+
+; USE module_name → import.source is module name for resolution
+(use_statement module_name: (identifier) @import.source) @import
+
+; INCLUDE path
+(include_statement path: (_) @import.source) @import
+
+; Calls: function-style and CALL name
+(call_expression _expression: (identifier) @call.name) @call
+(subroutine_call subroutine: (_) @call.name) @call
+
+; Heritage: TYPE ... EXTENDS(BaseType) :: DerivedType
+(derived_type_statement
+  _type_name: (identifier) @heritage.class
+  _derived_type_qualifier: (derived_type_qualifier (derived_type (identifier) @heritage.extends))) @heritage
+`;
+
 export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
   [SupportedLanguages.TypeScript]: TYPESCRIPT_QUERIES,
   [SupportedLanguages.JavaScript]: JAVASCRIPT_QUERIES,
@@ -542,5 +575,6 @@ export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
   [SupportedLanguages.PHP]: PHP_QUERIES,
   [SupportedLanguages.Kotlin]: KOTLIN_QUERIES,
   [SupportedLanguages.Swift]: SWIFT_QUERIES,
+  [SupportedLanguages.Fortran]: FORTRAN_QUERIES,
 };
  

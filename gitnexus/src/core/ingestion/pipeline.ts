@@ -11,6 +11,7 @@ import { createASTCache } from './ast-cache.js';
 import { PipelineProgress, PipelineResult } from '../../types/pipeline.js';
 import { walkRepositoryPaths, readFileContents } from './filesystem-walker.js';
 import { getLanguageFromFilename } from './utils.js';
+import { SupportedLanguages } from '../../config/supported-languages.js';
 import { isLanguageAvailable } from '../tree-sitter/parser-loader.js';
 import { createWorkerPool, WorkerPool } from './workers/worker-pool.js';
 
@@ -101,6 +102,11 @@ export const runPipelineFromRepo = async (
       if (lang && !isLanguageAvailable(lang)) {
         skippedByLang.set(lang, (skippedByLang.get(lang) || 0) + 1);
       }
+    }
+    // Fortran is required: fail if repo has Fortran files but grammar failed to load
+    const hasFortranFiles = scannedFiles.some(f => getLanguageFromFilename(f.path) === SupportedLanguages.Fortran);
+    if (hasFortranFiles && !isLanguageAvailable(SupportedLanguages.Fortran)) {
+      throw new Error('Fortran grammar is required but could not be loaded. Ensure tree-sitter-fortran is installed (e.g. npm install tree-sitter-fortran).');
     }
     for (const [lang, count] of skippedByLang) {
       console.warn(`Skipping ${count} ${lang} file(s) — ${lang} parser not available (native binding may not have built). Try: npm rebuild tree-sitter-${lang}`);

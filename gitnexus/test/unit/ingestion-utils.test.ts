@@ -100,6 +100,20 @@ describe('getLanguageFromFilename', () => {
     );
   });
 
+  describe('Fortran', () => {
+    it('detects .f90 files', () => {
+      expect(getLanguageFromFilename('file.f90')).toBe(SupportedLanguages.Fortran);
+    });
+
+    it('detects .f files', () => {
+      expect(getLanguageFromFilename('file.f')).toBe(SupportedLanguages.Fortran);
+    });
+
+    it('prefers .f90 when both could match (path with .f90)', () => {
+      expect(getLanguageFromFilename('src/module.f90')).toBe(SupportedLanguages.Fortran);
+    });
+  });
+
   describe('unsupported', () => {
     it.each(['.rb', '.scala', '.r', '.lua', '.zig', '.txt', '.md', '.json', '.yaml'])(
       'returns null for %s files',

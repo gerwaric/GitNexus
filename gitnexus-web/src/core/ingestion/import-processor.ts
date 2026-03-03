@@ -4,6 +4,7 @@ import { loadParser, loadLanguage } from '../tree-sitter/parser-loader';
 import { LANGUAGE_QUERIES } from './tree-sitter-queries';
 import { generateId } from '../../lib/utils';
 import { getLanguageFromFilename } from './utils';
+import { SupportedLanguages } from '../../config/supported-languages';
 
 // Type: Map<FilePath, Set<ResolvedFilePath>>
 // Stores all files that a given file imports from
@@ -17,10 +18,28 @@ const resolveImportPath = (
   importPath: string, 
   allFiles: Set<string>,
   allFileList: string[],
-  resolveCache: Map<string, string | null>
+  resolveCache: Map<string, string | null>,
+  language?: SupportedLanguages
 ): string | null => {
   const cacheKey = `${currentFile}::${importPath}`;
   if (resolveCache.has(cacheKey)) return resolveCache.get(cacheKey) ?? null;
+
+  // Fortran USE: module name = file stem; try .f90 then .f (first match)
+  if (language === SupportedLanguages.Fortran && !importPath.includes('/')) {
+    const normalizedFileList = allFileList.map(p => p.replace(/\\/g, '/'));
+    for (const ext of ['.f90', '.f']) {
+      const stem = importPath + ext;
+      const matchIdx = normalizedFileList.findIndex(
+        filePath => filePath.endsWith('/' + stem) || filePath === stem ||
+          filePath.toLowerCase().endsWith('/' + stem.toLowerCase()) || filePath.toLowerCase() === stem.toLowerCase()
+      );
+      if (matchIdx !== -1) {
+        const match = allFileList[matchIdx];
+        resolveCache.set(cacheKey, match);
+        return match;
+      }
+    }
+  }
 
   // 1. Resolve '..' and '.' for relative imports
   const currentDir = currentFile.split('/').slice(0, -1);
@@ -53,7 +72,9 @@ const resolveImportPath = (
     // Go
     '.go',
     // Rust
-    '.rs', '/mod.rs'
+    '.rs', '/mod.rs',
+    // Fortran / INCLUDE
+    '.f90', '.f', '.inc',
   ];
   
   if (importPath.startsWith('.')) {
@@ -192,7 +213,8 @@ export const processImports = async (
           rawImportPath,
           allFilePaths,
           allFileList,
-          resolveCache
+          resolveCache,
+          language
         );
 
         if (resolvedPath) {
