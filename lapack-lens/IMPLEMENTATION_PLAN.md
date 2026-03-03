@@ -67,10 +67,11 @@ Use this as a checklist when implementing in another session. Tasks are ordered 
 
 - **File:** `lapack-lens/app/app.py` (or single `app.py`).
 - **Actions:**
-  - Define OpenAI tool schemas for “query_lapack” (and optionally “context”, “cypher”) matching the backend params.
+  - Define OpenAI tool schemas for “query_lapack” (and optionally “context”, “cypher”) matching the backend params. **Use the same descriptions and parameter docs as the MCP tools** so the agent uses GitNexus proficiently (see `user-gitnexus` MCP tool descriptors or GitNexus server tool definitions for wording).
   - In the chat handler: call OpenAI Chat Completions with the conversation history and tools. If the response includes `tool_calls`, for each tool call:
     - Parse args, call the corresponding backend client function.
     - Append tool result to the conversation and call the API again until the model returns a final text response.
+  - **System prompt:** Tell the model it answers questions about the LAPACK codebase using GitNexus; use the query tool for natural-language search, context for symbol details; default repo is `lapack`.
   - Stream or final-message display as preferred (simplest: wait for final answer then append to chat).
 
 ### 2.4 Build Streamlit UI
@@ -97,12 +98,13 @@ Use this as a checklist when implementing in another session. Tasks are ordered 
 ### 3.1 Dockerfile
 
 - **Location:** `lapack-lens/Dockerfile` (or repo root if you prefer).
+- **Build context:** Use **repo root** as build context so you can `COPY gitnexus/` and `COPY lapack-lens/app/` (e.g. `docker build -f lapack-lens/Dockerfile .` or in docker-compose: `context: .` with `dockerfile: lapack-lens/Dockerfile`).
 - **Contents (conceptual):**
   1. Use a base with Node 20 and Python 3 (e.g. `node:20-bookworm` and install Python + pip, or use a Python image and install Node; or multi-stage).
   2. Clone Reference-LAPACK into `/app/lapack`: `RUN git clone --depth 1 https://github.com/Reference-LAPACK/lapack.git /app/lapack`.
   3. Build GitNexus: copy `gitnexus/`, run `npm ci` and `npm run build`, then `npx gitnexus analyze` inside `/app/lapack`. Ensure the global registry is written (e.g. run as user that owns `~/.gitnexus` or set `HOME` so registry path is consistent).
   4. Install Python deps for the Streamlit app (copy `lapack-lens/app/` and run `pip install -r requirements.txt`).
-  5. **Entrypoint script:** Start `gitnexus serve --host 0.0.0.0` in the background; loop until `curl -s http://127.0.0.1:4747/api/repos` returns 200 (or similar); then `exec streamlit run app/app.py --server.address=0.0.0.0 --server.port=8501`.
+  5. **Entrypoint script:** Start `gitnexus serve --host 0.0.0.0` in the background; loop until `curl -s http://127.0.0.1:4747/api/repos` returns 200 (or similar); then `exec streamlit run app/app.py --server.address=0.0.0.0 --server.port=8501`. Ensure the path to `app.py` matches where you copied the app (e.g. `COPY lapack-lens/app/ /app/app/` and `WORKDIR /app`).
   6. `EXPOSE 8501`.
 
 - **Details to confirm:** Node and Python in one image (slim as possible); correct working directory and paths so `gitnexus analyze` sees `/app/lapack` and writes to a path the server will read at runtime (e.g. same `HOME` or same registry path).

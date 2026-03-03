@@ -76,6 +76,7 @@
   2. App calls OpenAI with a system prompt that describes the tools (query LAPACK, get symbol context, optional cypher).
   3. If the model returns tool-use requests, the app calls `POST /api/tools/query` (or context/cypher) with the requested args, then sends the tool results back to the model.
   4. Repeat until the model returns a final answer; display in the chat.
+- **Agent proficiency:** Define OpenAI tool schemas using the same descriptions and parameter docs as the MCP tools so the LLM uses the REST tools the same way it would use MCP (see implementation plan Phase 2.3).
 - **Config:** Backend URL from env (e.g. `GITNEXUS_URL=http://127.0.0.1:4747`); OpenAI API key from env (`OPENAI_API_KEY`). No secrets in the image.
 
 ### 4. Docker
