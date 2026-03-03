@@ -43,6 +43,7 @@ Once the v0.1.0 grammar is installed and its native addon is built, `loadLanguag
 
 ## Current state
 
+- **Node:** Use **Node 20** for gitnexus (see `gitnexus/.nvmrc` and README). **Node 24 is unsupported**; native addon builds and runtime can fail.
 - **tree-sitter** is left at **^0.21.0** so the existing grammar stack and Node 20 build keep working.
 - **tree-sitter-fortran** is **vendored** at **vendor/tree-sitter-fortran** (v0.1.0 with devDependencies removed). The package.json dependency is **`file:vendor/tree-sitter-fortran`**, so Fortran parsing works on all platforms (including linux arm64/amd64) without the tree-sitter-cli install issue. If you use the GitHub ref instead and get the default v0.5.1, `loadLanguage(Fortran)` throws; the parser-loader and parse-worker rethrow a clear error pointing to this doc.
 

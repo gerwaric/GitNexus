@@ -171,7 +171,7 @@ Installed automatically by both `gitnexus analyze` (per-repo) and `gitnexus setu
 
 ## Requirements
 
-- Node.js >= 18
+- **Node.js 20.x** (use `nvm use` in the gitnexus directory; `.nvmrc` is set). Node 24 is **unsupported** — native addons (KuzuDB, tree-sitter) can fail to build or run. `npm install` will fail on the wrong Node version when `engine-strict` is set.
 - Git repository (uses git for commit tracking)
 
 ## Privacy

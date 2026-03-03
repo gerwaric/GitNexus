@@ -4,7 +4,7 @@ This document describes the test suites and known issues as of the last full reg
 
 ## gitnexus (CLI / core)
 
-- **Node:** Use Node 20 for gitnexus (see `.nvmrc`). The package declares `engines: { "node": "20.x" }`; other versions may work but are unsupported and can trigger native addon or engine warnings.
+- **Node:** Use Node 20 for gitnexus (see `.nvmrc`; run `nvm use` in the gitnexus directory). The package declares `engines: { "node": "20.x" }` and `engine-strict` is set in `.npmrc`; **Node 24 is unsupported** and may cause native addon build/run failures.
 
 ### Unit tests
 
