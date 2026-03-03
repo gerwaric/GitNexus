@@ -125,6 +125,17 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
   }));
   app.use(express.json({ limit: '10mb' }));
 
+  // Request logging (method + path + duration) for debugging
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      const size = res.getHeader('content-length');
+      console.log(`${req.method} ${req.url} ${res.statusCode} ${duration}ms${size ? ` ${Number(size) / 1024 / 1024 | 0}MB` : ''}`);
+    });
+    next();
+  });
+
   // Initialize MCP backend (multi-repo, shared across all MCP sessions)
   const backend = new LocalBackend();
   await backend.init();
