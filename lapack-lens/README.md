@@ -80,4 +80,13 @@ Then open http://localhost:8501.
   | Documentation generation | wiki |
 
 - **Registry path:** The GitNexus index is built at Docker image build time and stored under `$HOME/.gitnexus` in the container; no Fly volume is used.
+- **Performance script:** To collect latency and success per query, run the performance script (same tool loop as the chat, no Streamlit):
+
+  ```bash
+  cd lapack-lens
+  pip install -r app/requirements.txt   # if not already
+  PYTHONPATH=app python3 scripts/run_performance_tests.py [--queries scripts/queries.json] [--output performance_report.json] [--md report.md]
+  ```
+
+  Requires `OPENAI_API_KEY` and a running GitNexus server. The default query list is `scripts/queries.json` (same 10 as `docs/testing-scenarios.md`). See `docs/rag-architecture.md` §6 for where to document the results.
 - **VM size:** Default is 2GB RAM (works on free tier); set to 4GB in `fly.toml` if your Fly plan allows it.

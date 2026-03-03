@@ -163,11 +163,11 @@ Optional follow-up when time allows: §2.3 (full query interface (A)).
 - [x] **3.3** `POST /api/tools/wiki` implemented (triggers wiki generation; long timeout or async).
 - [x] **3.4** Lapack Lens: `call_wiki`, tool def, tool loop handles wiki.
 - [x] **3.5** Feature → tool mapping table in README or RAG doc (includes impact + wiki).
-- [ ] **4.1** Performance script design (input, output, how backend is called).
-- [ ] **4.2** Script implemented and producing a report.
+- [x] **4.1** Performance script design (input, output, how backend is called).
+- [x] **4.2** Script implemented and producing a report.
 - [ ] **4.3** Script run; latency and ingestion time recorded.
 - [ ] **4.4** RAG doc updated with performance results; script documented.
 - [x] **5.1** LAPACK test scenarios defined (6–10 queries in file or doc).
 - [ ] **5.2** Outcomes documented per scenario.
-- [ ] **5.3** Scenarios wired into performance script.
+- [x] **5.3** Scenarios wired into performance script.
 - [x] **6.1** README includes https://lapack-lens.fly.dev .

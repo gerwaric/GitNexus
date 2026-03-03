@@ -1,0 +1,12 @@
+[
+  "Where is the main entry point of this program?",
+  "What does the routine dgemm do?",
+  "What are the dependencies of the module or routine that computes eigenvalues?",
+  "Where is the Cholesky factorization implemented?",
+  "Find all file I/O operations in the codebase.",
+  "Show me error handling patterns in this codebase.",
+  "What BLAS routines does LAPACK call for matrix multiplication?",
+  "Where is the singular value decomposition (SVD) implemented?",
+  "What would be affected if I change routine dgetrf?",
+  "Explain what the dsyev subroutine does and where it is defined."
+]
