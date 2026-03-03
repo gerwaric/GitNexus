@@ -162,7 +162,8 @@ This document defines **what** must be designed or changed to support Fortran in
 
 ## 4. Dependencies and Constraints
 
-- **Grammar:** [tree-sitter-fortran](https://github.com/stadelmanma/tree-sitter-fortran) at **version 0.1.0** (npm: `tree-sitter-fortran@0.1.0`). **Required dependency** (not optional). Use with GitNexus `tree-sitter` ^0.21 (no CLI upgrade). Node bindings for CLI; WASM built via an in-repo script for Web UI.
+- **Grammar:** [tree-sitter-fortran](https://github.com/stadelmanma/tree-sitter-fortran) at **version 0.1.0** (npm: `tree-sitter-fortran@0.1.0`). **Required dependency** (not optional). Use with GitNexus `tree-sitter` ^0.21 (no CLI upgrade). Node bindings for CLI; WASM built via an in-repo script for Web UI.  
+  **Note:** The default GitHub ref (v0.5.1) is built for tree-sitter 0.26 and will **fail to load** with tree-sitter 0.21 (ABI mismatch). Pin to **v0.1.0** for 0.21 compatibility; see **docs/design/tree-sitter-upgrade-notes.md**.
 - **Tree-sitter version:** Remain on `tree-sitter` ^0.21; apply consistently in parser-loader and parse-worker.
 - **Graph schema:** Reuse existing `NodeLabel` and `RelationshipType` values only; no new Program label.
 

@@ -14,6 +14,8 @@ import { getLanguageFromFilename } from './utils.js';
 import { SupportedLanguages } from '../../config/supported-languages.js';
 import { isLanguageAvailable } from '../tree-sitter/parser-loader.js';
 import { createWorkerPool, WorkerPool } from './workers/worker-pool.js';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -143,12 +145,15 @@ export const runPipelineFromRepo = async (
       stats: { filesProcessed: 0, totalFiles: totalParseable, nodesCreated: graph.nodeCount },
     });
 
-    // Create worker pool once, reuse across chunks
+    // Create worker pool once, reuse across chunks (only when compiled worker exists, e.g. after build)
     let workerPool: WorkerPool | undefined;
     try {
       const workerUrl = new URL('./workers/parse-worker.js', import.meta.url);
-      workerPool = createWorkerPool(workerUrl);
-    } catch (err) {
+      const workerPath = fileURLToPath(workerUrl);
+      if (fs.existsSync(workerPath)) {
+        workerPool = createWorkerPool(workerUrl);
+      }
+    } catch {
       // Worker pool creation failed — sequential fallback
     }
 

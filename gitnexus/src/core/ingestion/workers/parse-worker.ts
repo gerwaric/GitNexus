@@ -137,7 +137,18 @@ const setLanguage = (language: SupportedLanguages, filePath: string): void => {
     : language;
   const lang = languageMap[key];
   if (!lang) throw new Error(`Unsupported language: ${language}`);
-  parser.setLanguage(lang);
+  try {
+    parser.setLanguage(lang);
+  } catch (err) {
+    if (language === SupportedLanguages.Fortran && err instanceof TypeError) {
+      throw new Error(
+        'Fortran grammar failed to load: the installed tree-sitter-fortran was built for tree-sitter 0.26, but this project uses tree-sitter ^0.21 (ABI mismatch). ' +
+        'Use a 0.21-compatible grammar: install tree-sitter-fortran at v0.1.0 (e.g. "tree-sitter-fortran": "github:stadelmanma/tree-sitter-fortran#v0.1.0" in package.json) and run npm install. ' +
+        'See docs/design/tree-sitter-upgrade-notes.md and docs/design/fortran-support.md.'
+      );
+    }
+    throw err;
+  }
 };
 
 // ============================================================================
