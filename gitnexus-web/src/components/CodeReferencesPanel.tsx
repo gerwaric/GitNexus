@@ -2,8 +2,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Code, PanelLeftClose, PanelLeft, Trash2, X, Target, FileCode, Sparkles, MousePointerClick } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+// Ensure Fortran (and other Refractor languages) are in the bundle; Prism build uses Refractor from refractor/all
+import 'refractor/all';
 import { useAppState } from '../hooks/useAppState';
 import { NODE_COLORS } from '../lib/constants';
+
+// Extension-only language for Code Inspector (no .h; Fortran tokenization may not apply with full Prism bundle)
+function deriveLanguage(filePath: string, displayName?: string): string {
+  if (filePath.endsWith('.py')) return 'python';
+  if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) return 'javascript';
+  if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) return 'typescript';
+  if (/\.(f90?|for)$/i.test(filePath)) return 'fortran';
+  // Fallback: path may be stem-only (e.g. from graph); check display name / path for Fortran extensions
+  const name = (displayName ?? filePath).toLowerCase();
+  if (/\.(f90?|for)$/.test(name) || name.endsWith('.f') || name.endsWith('.f90') || name.endsWith('.for')) return 'fortran';
+  return 'text';
+}
 
 // Match the code theme used elsewhere in the app
 const customTheme = {
@@ -268,11 +282,7 @@ export const CodeReferencesPanel = ({ onFocusNode }: CodeReferencesPanelProps) =
               {selectedFileContent ? (
                 <SyntaxHighlighter
                   language={
-                    selectedFilePath?.endsWith('.py') ? 'python' :
-                    selectedFilePath?.endsWith('.js') || selectedFilePath?.endsWith('.jsx') ? 'javascript' :
-                    selectedFilePath?.endsWith('.ts') || selectedFilePath?.endsWith('.tsx') ? 'typescript' :
-                    /\.(f90?|for)$/i.test(selectedFilePath ?? '') ? 'fortran' :
-                    'text'
+                    deriveLanguage(selectedFilePath ?? '')
                   }
                   style={customTheme as any}
                   showLineNumbers
@@ -341,11 +351,10 @@ export const CodeReferencesPanel = ({ onFocusNode }: CodeReferencesPanelProps) =
           const startDisplay = hasRange ? (ref.startLine ?? 0) + 1 : undefined;
           const endDisplay = hasRange ? (ref.endLine ?? ref.startLine ?? 0) + 1 : undefined;
           const language =
-            ref.filePath.endsWith('.py') ? 'python' :
-            ref.filePath.endsWith('.js') || ref.filePath.endsWith('.jsx') ? 'javascript' :
-            ref.filePath.endsWith('.ts') || ref.filePath.endsWith('.tsx') ? 'typescript' :
-            /\.(f90?|for)$/i.test(ref.filePath) ? 'fortran' :
-            'text';
+            deriveLanguage(ref.filePath, ref.name ?? ref.filePath.split('/').pop() ?? undefined);
+          if (import.meta.env.DEV) {
+            console.log('Code ref language', ref.filePath, '→', language);
+          }
 
           const isGlowing = glowRefId === ref.id;
 
