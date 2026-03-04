@@ -39,6 +39,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/cli/index.ts",
+    "serve": "node dist/cli/index.js serve",
     "test": "vitest run test/unit",
     "test:integration": "vitest run test/integration",
     "test:all": "vitest run",

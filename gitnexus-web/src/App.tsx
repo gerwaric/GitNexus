@@ -12,7 +12,7 @@ import { CodeReferencesPanel } from './components/CodeReferencesPanel';
 import { FileEntry } from './services/zip';
 import { getActiveProviderConfig } from './core/llm/settings-service';
 import { createKnowledgeGraph } from './core/graph/graph';
-import { connectToServer, fetchRepos, normalizeServerUrl, type ConnectToServerResult } from './services/server-connection';
+import { connectToServer, fetchRepos, normalizeServerUrl, DEFAULT_SERVER_REPO, type ConnectToServerResult } from './services/server-connection';
 
 const AppContent = () => {
   const {
@@ -39,12 +39,14 @@ const AppContent = () => {
     setServerBaseUrl,
     availableRepos,
     setAvailableRepos,
+    setCurrentServerRepoName,
     switchRepo,
   } = useAppState();
 
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
 
   const handleFileSelect = useCallback(async (file: File) => {
+    setCurrentServerRepoName(null);
     const projectName = file.name.replace('.zip', '');
     setProjectName(projectName);
     setProgress({ phase: 'extracting', percent: 0, message: 'Starting...', detail: 'Preparing to extract files' });
@@ -87,9 +89,10 @@ const AppContent = () => {
         setProgress(null);
       }, 3000);
     }
-  }, [setViewMode, setGraph, setFileContents, setProgress, setProjectName, runPipeline, startEmbeddings, initializeAgent]);
+  }, [setViewMode, setGraph, setFileContents, setProgress, setProjectName, runPipeline, startEmbeddings, initializeAgent, setCurrentServerRepoName]);
 
   const handleGitClone = useCallback(async (files: FileEntry[]) => {
+    setCurrentServerRepoName(null);
     const firstPath = files[0]?.path || 'repository';
     const projectName = firstPath.split('/')[0].replace(/-\d+$/, '') || 'repository';
 
@@ -130,13 +133,14 @@ const AppContent = () => {
         setProgress(null);
       }, 3000);
     }
-  }, [setViewMode, setGraph, setFileContents, setProgress, setProjectName, runPipelineFromFiles, startEmbeddings, initializeAgent]);
+  }, [setViewMode, setGraph, setFileContents, setProgress, setProjectName, runPipelineFromFiles, startEmbeddings, initializeAgent, setCurrentServerRepoName]);
 
   const handleServerConnect = useCallback((result: ConnectToServerResult) => {
     // Extract project name from repoPath
     const repoPath = result.repoInfo.repoPath;
     const projectName = repoPath.split('/').pop() || 'server-project';
     setProjectName(projectName);
+    setCurrentServerRepoName(result.repoInfo.name);
 
     // Build KnowledgeGraph from server data (bypasses WASM pipeline entirely)
     const graph = createKnowledgeGraph();
@@ -163,15 +167,8 @@ const AppContent = () => {
       initializeAgent(projectName);
     }
 
-    // Auto-start embeddings
-    startEmbeddings().catch((err) => {
-      if (err?.name === 'WebGPUNotAvailableError' || err?.message?.includes('WebGPU')) {
-        startEmbeddings('wasm').catch(console.warn);
-      } else {
-        console.warn('Embeddings auto-start failed:', err);
-      }
-    });
-  }, [setViewMode, setGraph, setFileContents, setProjectName, initializeAgent, startEmbeddings]);
+    // Backend repos use server-side search/embeddings; skip in-browser embedding pipeline.
+  }, [setViewMode, setGraph, setFileContents, setProjectName, setCurrentServerRepoName, initializeAgent]);
 
   // Auto-connect when ?server query param is present (bookmarkable shortcut)
   const autoConnectRan = useRef(false);
@@ -202,7 +199,7 @@ const AppContent = () => {
       } else if (phase === 'extracting') {
         setProgress({ phase: 'extracting', percent: 97, message: 'Processing...', detail: 'Extracting file contents' });
       }
-    }).then(async (result) => {
+    }, undefined, DEFAULT_SERVER_REPO).then(async (result) => {
       handleServerConnect(result);
 
       // Store server URL and fetch available repos for the repo switcher

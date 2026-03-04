@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, DragEvent } from 'react';
 import { Upload, FileArchive, Github, Loader2, ArrowRight, Key, Eye, EyeOff, Globe, X } from 'lucide-react';
 import { cloneRepository, parseGitHubUrl } from '../services/git-clone';
-import { connectToServer, type ConnectToServerResult } from '../services/server-connection';
+import { connectToServer, DEFAULT_SERVER_REPO, type ConnectToServerResult } from '../services/server-connection';
 import { FileEntry } from '../services/zip';
 
 interface DropZoneProps {
@@ -148,7 +148,8 @@ export const DropZone = ({ onFileSelect, onGitClone, onServerConnect }: DropZone
         (phase, downloaded, total) => {
           setServerProgress({ phase, downloaded, total });
         },
-        abortController.signal
+        abortController.signal,
+        DEFAULT_SERVER_REPO
       );
 
       if (onServerConnect) {

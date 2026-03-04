@@ -116,6 +116,8 @@ interface AppState {
   // Multi-repo switching
   serverBaseUrl: string | null;
   setServerBaseUrl: (url: string | null) => void;
+  currentServerRepoName: string | null;
+  setCurrentServerRepoName: (name: string | null) => void;
   availableRepos: RepoSummary[];
   setAvailableRepos: (repos: RepoSummary[]) => void;
   switchRepo: (repoName: string) => Promise<void>;
@@ -281,6 +283,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
   // Multi-repo switching
   const [serverBaseUrl, setServerBaseUrl] = useState<string | null>(null);
+  const [currentServerRepoName, setCurrentServerRepoName] = useState<string | null>(null);
   const [availableRepos, setAvailableRepos] = useState<RepoSummary[]>([]);
 
   // Embedding state
@@ -467,12 +470,26 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const runQuery = useCallback(async (cypher: string): Promise<any[]> => {
+    if (serverBaseUrl && currentServerRepoName) {
+      const response = await fetch(`${serverBaseUrl}/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cypher, repo: currentServerRepoName }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error || `Backend query failed: ${response.status}`);
+      }
+      const body = (await response.json()) as { result?: any[] };
+      return body.result ?? body ?? [];
+    }
     const api = apiRef.current;
     if (!api) throw new Error('Worker not initialized');
     return api.runQuery(cypher);
-  }, []);
+  }, [serverBaseUrl, currentServerRepoName]);
 
   const isDatabaseReady = useCallback(async (): Promise<boolean> => {
+    if (serverBaseUrl && currentServerRepoName) return true;
     const api = apiRef.current;
     if (!api) return false;
     try {
@@ -480,7 +497,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       return false;
     }
-  }, []);
+  }, [serverBaseUrl, currentServerRepoName]);
 
   // Embedding methods
   const startEmbeddings = useCallback(async (forceDevice?: 'webgpu' | 'wasm'): Promise<void> => {
@@ -1017,17 +1034,12 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       for (const [p, c] of Object.entries(result.fileContents)) fileMap.set(p, c);
       setFileContents(fileMap);
 
+      setCurrentServerRepoName(repoName);
       setViewMode('exploring');
 
       if (getActiveProviderConfig()) initializeAgent(pName);
 
-      startEmbeddings().catch((err) => {
-        if (err?.name === 'WebGPUNotAvailableError' || err?.message?.includes('WebGPU')) {
-          startEmbeddings('wasm').catch(console.warn);
-        } else {
-          console.warn('Embeddings auto-start failed:', err);
-        }
-      });
+      // Backend repos use server-side search/embeddings; skip in-browser embedding pipeline.
     } catch (err) {
       console.error('Repo switch failed:', err);
       setProgress({
@@ -1037,7 +1049,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       });
       setTimeout(() => { setViewMode('exploring'); setProgress(null); }, 3000);
     }
-  }, [serverBaseUrl, setProgress, setViewMode, setProjectName, setGraph, setFileContents, initializeAgent, startEmbeddings, setHighlightedNodeIds, clearAIToolHighlights, clearBlastRadius, setSelectedNode, setQueryResult, setCodeReferences, setCodePanelOpen, setCodeReferenceFocus]);
+  }, [serverBaseUrl, setProgress, setViewMode, setProjectName, setGraph, setFileContents, setCurrentServerRepoName, initializeAgent, setHighlightedNodeIds, clearAIToolHighlights, clearBlastRadius, setSelectedNode, setQueryResult, setCodeReferences, setCodePanelOpen, setCodeReferenceFocus]);
 
   const removeCodeReference = useCallback((id: string) => {
     setCodeReferences(prev => {
@@ -1135,6 +1147,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     // Multi-repo switching
     serverBaseUrl,
     setServerBaseUrl,
+    currentServerRepoName,
+    setCurrentServerRepoName,
     availableRepos,
     setAvailableRepos,
     switchRepo,

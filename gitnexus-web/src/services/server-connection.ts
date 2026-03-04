@@ -155,3 +155,6 @@ export async function connectToServer(
 
   return { nodes, relationships, fileContents, repoInfo };
 }
+
+/** Default repo name when connecting to server without selecting a repo (e.g. Server tab, ?server= URL). */
+export const DEFAULT_SERVER_REPO = 'lapack';
