@@ -1,20 +1,21 @@
-# Lapack Lens — deploy from repo root: fly deploy -a lapack-lens
-# Set secret: fly secrets set OPENAI_API_KEY=sk-... -a lapack-lens
+# fly.toml app configuration file generated for lapack-lens on 2026-03-03T18:46:12-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "lapack-lens"
+app = 'lapack-lens'
+primary_region = 'lax'
 
 [build]
-  dockerfile = "lapack-lens/Dockerfile"
+  dockerfile = 'Dockerfile'
 
 [http_service]
-  internal_port = 8501
+  internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
 
 [[vm]]
-  memory = "2gb"
-  # Use "4gb" if your Fly plan allows it (paid).
-
-[env]
-  GITNEXUS_URL = "http://127.0.0.1:4747"
+  memory = '1gb'
+  cpus = 4
+  memory_mb = 1024

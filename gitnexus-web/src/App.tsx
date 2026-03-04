@@ -135,40 +135,41 @@ const AppContent = () => {
     }
   }, [setViewMode, setGraph, setFileContents, setProgress, setProjectName, runPipelineFromFiles, startEmbeddings, initializeAgent, setCurrentServerRepoName]);
 
-  const handleServerConnect = useCallback((result: ConnectToServerResult) => {
-    // Extract project name from repoPath
-    const repoPath = result.repoInfo.repoPath;
-    const projectName = repoPath.split('/').pop() || 'server-project';
-    setProjectName(projectName);
-    setCurrentServerRepoName(result.repoInfo.name);
+  const handleServerConnect = useCallback(
+    (result: ConnectToServerResult, serverUrl?: string) => {
+      const repoPath = result.repoInfo.repoPath;
+      const projectName = repoPath.split('/').pop() || 'server-project';
+      setProjectName(projectName);
+      setCurrentServerRepoName(result.repoInfo.name);
 
-    // Build KnowledgeGraph from server data (bypasses WASM pipeline entirely)
-    const graph = createKnowledgeGraph();
-    for (const node of result.nodes) {
-      graph.addNode(node);
-    }
-    for (const rel of result.relationships) {
-      graph.addRelationship(rel);
-    }
-    setGraph(graph);
+      const graph = createKnowledgeGraph();
+      for (const node of result.nodes) graph.addNode(node);
+      for (const rel of result.relationships) graph.addRelationship(rel);
+      setGraph(graph);
 
-    // Set file contents from extracted File node content
-    const fileMap = new Map<string, string>();
-    for (const [path, content] of Object.entries(result.fileContents)) {
-      fileMap.set(path, content);
-    }
-    setFileContents(fileMap);
+      const fileMap = new Map<string, string>();
+      for (const [path, content] of Object.entries(result.fileContents)) {
+        fileMap.set(path, content);
+      }
+      setFileContents(fileMap);
 
-    // Transition directly to exploring view
-    setViewMode('exploring');
+      setViewMode('exploring');
 
-    // Initialize agent if LLM is configured
-    if (getActiveProviderConfig()) {
-      initializeAgent(projectName);
-    }
-
-    // Backend repos use server-side search/embeddings; skip in-browser embedding pipeline.
-  }, [setViewMode, setGraph, setFileContents, setProjectName, setCurrentServerRepoName, initializeAgent]);
+      if (getActiveProviderConfig()) {
+        if (serverUrl) {
+          const baseUrl = normalizeServerUrl(serverUrl);
+          initializeAgent(projectName, {
+            serverBaseUrl: baseUrl,
+            repoName: result.repoInfo.name,
+            fileContentsEntries: [...Object.entries(result.fileContents)],
+          });
+        } else {
+          initializeAgent(projectName);
+        }
+      }
+    },
+    [setViewMode, setGraph, setFileContents, setProjectName, setCurrentServerRepoName, initializeAgent],
+  );
 
   // Auto-connect when ?server query param is present (bookmarkable shortcut)
   const autoConnectRan = useRef(false);
@@ -200,10 +201,8 @@ const AppContent = () => {
         setProgress({ phase: 'extracting', percent: 97, message: 'Processing...', detail: 'Extracting file contents' });
       }
     }, undefined, DEFAULT_SERVER_REPO).then(async (result) => {
-      handleServerConnect(result);
-
-      // Store server URL and fetch available repos for the repo switcher
       setServerBaseUrl(baseUrl);
+      handleServerConnect(result, serverUrl);
       try {
         const repos = await fetchRepos(baseUrl);
         setAvailableRepos(repos);
@@ -243,7 +242,6 @@ const AppContent = () => {
         onFileSelect={handleFileSelect}
         onGitClone={handleGitClone}
         onServerConnect={async (result, serverUrl) => {
-          handleServerConnect(result);
           if (serverUrl) {
             const baseUrl = normalizeServerUrl(serverUrl);
             setServerBaseUrl(baseUrl);
@@ -254,6 +252,7 @@ const AppContent = () => {
               console.warn('Failed to fetch repo list:', e);
             }
           }
+          handleServerConnect(result, serverUrl);
         }}
       />
     );

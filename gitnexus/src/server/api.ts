@@ -107,15 +107,19 @@ const requestedRepo = (req: express.Request): string | undefined => {
 export const createServer = async (port: number, host: string = '127.0.0.1') => {
   const app = express();
 
-  // CORS: only allow localhost origins and the deployed site.
-  // Non-browser requests (curl, server-to-server) have no origin and are allowed.
+  // CORS: allow localhost, Vercel deploy, PUBLIC_ORIGIN, and on Fly https://<FLY_APP_NAME>.fly.dev
+  const allowedOrigins = [
+    'https://gitnexus.vercel.app',
+    process.env.PUBLIC_ORIGIN,
+    process.env.FLY_APP_NAME ? `https://${process.env.FLY_APP_NAME}.fly.dev` : null,
+  ].filter(Boolean) as string[];
   app.use(cors({
     origin: (origin, callback) => {
       if (
         !origin
         || origin.startsWith('http://localhost:')
         || origin.startsWith('http://127.0.0.1:')
-        || origin === 'https://gitnexus.vercel.app'
+        || allowedOrigins.includes(origin)
       ) {
         callback(null, true);
       } else {
@@ -467,6 +471,15 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
       res.status(500).json({ error: err.message || 'Wiki generation failed' });
     }
   });
+
+  // Optional: serve static web UI (e.g. gitnexus-web build) and SPA fallback
+  const staticDir = process.env.GITNEXUS_WEB_ROOT;
+  if (staticDir) {
+    app.use(express.static(staticDir));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(staticDir, 'index.html'));
+    });
+  }
 
   // Global error handler — catch anything the route handlers miss
   app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
