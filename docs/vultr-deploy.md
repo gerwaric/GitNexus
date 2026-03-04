@@ -18,7 +18,7 @@ Deploy using either the **Vultr dashboard** (no CLI) or the **Vultr CLI**. After
 3. **Server type:** choose **Cloud Compute**.
 4. **Location:** pick a region (e.g. Los Angeles, Newark, Amsterdam).
 5. **Image:** choose **Ubuntu 22.04 LTS**.
-6. **Server size:** pick a plan, e.g. **$6/mo** (1 vCPU, 1 GB RAM) — enough to build and run.
+6. **Server size:** pick a plan. **$6/mo** (1 vCPU, 1 GB RAM) can work — the setup script adds 2 GB swap and raises Node’s heap for the web build. If the web build still runs out of memory, use a **$12/mo** (2 GB RAM) plan.
 7. **SSH key (optional):** if you added a key, select it so you can log in without a password. If you skip this, Vultr will email the root password after the server is created.
 8. **Server hostname / label:** e.g. `gitnexus`.
 9. Click **Deploy Now**.

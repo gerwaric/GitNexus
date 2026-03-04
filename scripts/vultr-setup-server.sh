@@ -36,6 +36,16 @@ npm run build
 
 echo "[4/6] Building web (gitnexus-web)..."
 cd "$APP_DIR/gitnexus-web"
+# Vite build is memory-hungry; ensure enough heap and swap on small VPS
+if [[ ! -f /swapfile ]]; then
+  echo "Adding 2GB swap for the web build..."
+  fallocate -l 2G /swapfile || true
+  chmod 600 /swapfile
+  mkswap /swapfile 2>/dev/null || true
+  swapon /swapfile 2>/dev/null || true
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=2048}"
 npm ci
 npm run build
 

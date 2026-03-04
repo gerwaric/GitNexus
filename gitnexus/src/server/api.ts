@@ -107,12 +107,13 @@ const requestedRepo = (req: express.Request): string | undefined => {
 export const createServer = async (port: number, host: string = '127.0.0.1') => {
   const app = express();
 
-  // CORS: allow localhost, Vercel deploy, PUBLIC_ORIGIN, and on Fly https://<FLY_APP_NAME>.fly.dev
+  // CORS: allow localhost, Vercel deploy, PUBLIC_ORIGIN, Fly app URL, and when serving our own UI (GITNEXUS_WEB_ROOT) allow any origin
   const allowedOrigins = [
     'https://gitnexus.vercel.app',
     process.env.PUBLIC_ORIGIN,
     process.env.FLY_APP_NAME ? `https://${process.env.FLY_APP_NAME}.fly.dev` : null,
   ].filter(Boolean) as string[];
+  const servingOwnWeb = Boolean(process.env.GITNEXUS_WEB_ROOT);
   app.use(cors({
     origin: (origin, callback) => {
       if (
@@ -120,6 +121,7 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
         || origin.startsWith('http://localhost:')
         || origin.startsWith('http://127.0.0.1:')
         || allowedOrigins.includes(origin)
+        || servingOwnWeb
       ) {
         callback(null, true);
       } else {
@@ -475,9 +477,14 @@ export const createServer = async (port: number, host: string = '127.0.0.1') => 
   // Optional: serve static web UI (e.g. gitnexus-web build) and SPA fallback
   const staticDir = process.env.GITNEXUS_WEB_ROOT;
   if (staticDir) {
-    app.use(express.static(staticDir));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(staticDir, 'index.html'));
+    app.use(express.static(staticDir, { index: false }));
+    app.get('*', (req, res, next) => {
+      res.sendFile(path.join(staticDir, 'index.html'), (err: any) => {
+        if (err) {
+          console.error('sendFile error:', err.message);
+          next(err);
+        }
+      });
     });
   }
 
