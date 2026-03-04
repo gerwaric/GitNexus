@@ -19,9 +19,9 @@ Natural-language queries for validating Lapack Lens and the performance script. 
 
 ## Usage
 
-- **Manual / demo:** Run these queries in the GitNexus Browser Client at [https://lapack.smallcatlabs.com](https://lapack.smallcatlabs.com) or against a local backend + client.
+- **Manual / demo:** Run these queries in the GitNexus Browser Client at [https://gitnexus.smallcatlabs.com](https://gitnexus.smallcatlabs.com) or against a local backend + client.
 - **Performance script:** A minimal script that runs a fixed set of queries against the backend (and optionally the LLM loop) can be added to the repo to record latency and regenerate outcomes; see §4.2 of the mitigation plan. Until then, run scenarios manually and fill outcomes below.
-- **Backend-only latency:** Run `BACKEND_URL=https://lapack.smallcatlabs.com node scripts/performance-query-latency.mjs [--all] [--output report.json]` to measure `/api/search` latency (no LLM). Use the report to fill RAG doc §6 and optionally refine Outcomes.
+- **Backend-only latency:** Run `BACKEND_URL=https://gitnexus.smallcatlabs.com node scripts/performance-query-latency.mjs [--all] [--output report.json]` to measure `/api/search` latency (no LLM). Use the report to fill RAG doc §6 and optionally refine Outcomes.
 
 ## Outcomes
 

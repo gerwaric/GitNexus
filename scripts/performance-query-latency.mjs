@@ -5,7 +5,7 @@
  * docs/rag-architecture.md §6 and docs/testing-scenarios.md Outcomes.
  *
  * Usage:
- *   BACKEND_URL=https://lapack.smallcatlabs.com REPO=<repo-name> node scripts/performance-query-latency.mjs
+ *   BACKEND_URL=https://gitnexus.smallcatlabs.com REPO=<repo-name> node scripts/performance-query-latency.mjs
  *   BACKEND_URL=http://127.0.0.1:4747 node scripts/performance-query-latency.mjs [--output report.json]
  *
  * Default queries match docs/testing-scenarios.md (first 3 for a quick run; use --all for all 10).

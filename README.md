@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/172685ba-8e54-4ea7-9ad1-e31a3398da72
 
 **TL;DR:** The **Web UI** is a quick way to chat with any repo. The **CLI + MCP** is how you make your AI agent actually reliable — it gives Cursor, Claude Code, and friends a deep architectural view of your codebase so they stop missing dependencies, breaking call chains, and shipping blind edits. Even smaller models get full architectural clarity, making it compete with goliath models.
 
-**Deployed demo (LegacyLens / LAPACK):** [Try it — https://lapack.smallcatlabs.com](https://lapack.smallcatlabs.com) — GitNexus Browser Client over a GitNexus backend indexing LAPACK. *Update this link if the subdomain or deployment changes.*
+**Deployed demo (LegacyLens / LAPACK):** [Try it — https://gitnexus.smallcatlabs.com](https://gitnexus.smallcatlabs.com) — GitNexus Browser Client over a GitNexus backend indexing LAPACK. *Update this link if the subdomain or deployment changes.*
 
 **Code understanding features (≥4 for LegacyLens):** The Nexus AI agent in the Web UI (and backend mode) provides: (1) **Code explanation** — answers “what does X do?” using search, context, and read tools; (2) **Dependency mapping** — explore tool shows incoming/outgoing CALLS and IMPORTS for any symbol; (3) **Impact analysis** — impact tool and blast-radius view show what is affected if code changes; (4) **Pattern detection** — search over symbols finds similar code (e.g. routines matching a query). Code references in the **Code Inspector** panel show file/line and relevance scores; the **impact** view shows blast radius from a selected symbol.
 

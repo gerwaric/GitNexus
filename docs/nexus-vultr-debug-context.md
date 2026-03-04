@@ -37,9 +37,9 @@ Use this file when continuing debugging or adding features for the **Vultr deplo
 sudo systemctl status gitnexus
 journalctl -u gitnexus -f -n 100
 
-# Update app (pull, rebuild backend, restart)
+# Update app (pull, install deps, rebuild backend, restart)
 sudo -u gitnexus git -C /opt/gitnexus pull --ff-only
-sudo -u gitnexus bash -c 'cd /opt/gitnexus/gitnexus && npm run build'
+sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c 'cd /opt/gitnexus/gitnexus && npm install && npm run build'
 sudo systemctl restart gitnexus
 ```
 

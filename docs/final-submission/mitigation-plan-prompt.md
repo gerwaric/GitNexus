@@ -7,7 +7,7 @@ Use this prompt in a **new chat session** to turn the gap analysis into a step-b
 Create a **step-by-step mitigation plan** to address the gaps in `docs/final-submission/gap-analysis.md`. The plan should be written as a new document (e.g. `docs/final-submission/mitigation-plan.md`).
 
 **Context**
-- The gap analysis compares **GitNexus + gitnexus-web** (deployed at https://lapack.smallcatlabs.com) to the **LegacyLens G4 submission requirements** in `docs/project-definition.md`.
+- The gap analysis compares **GitNexus + gitnexus-web** (deployed at https://gitnexus.smallcatlabs.com) to the **LegacyLens G4 submission requirements** in `docs/project-definition.md`.
 - The analysis defines **areas and goals** (documentation, query interface, code-understanding features, testing/performance, submission artifacts) and is **not** a plan. Your job is to turn it into an actionable plan.
 
 **Requirements for the mitigation plan**

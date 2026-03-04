@@ -48,7 +48,7 @@ This document is a **step-by-step mitigation plan** to close the gaps identified
 
 | Step | Action | Location / reference |
 |------|--------|----------------------|
-| 1.4.1 | Add a clear "Deployed demo" or "Try it" section (or line) in the root README with the URL **https://lapack.smallcatlabs.com**, and a short note to update when the subdomain changes. | `README.md` |
+| 1.4.1 | Add a clear "Deployed demo" or "Try it" section (or line) in the root README with the URL **https://gitnexus.smallcatlabs.com**, and a short note to update when the subdomain changes. | `README.md` |
 
 ---
 
@@ -104,7 +104,7 @@ This document is a **step-by-step mitigation plan** to close the gaps identified
 
 | Step | Action | Location / reference |
 |------|--------|----------------------|
-| 4.1.1 | Run the 10 scenarios (or the 6 from the assignment) against https://lapack.smallcatlabs.com (or a local backend + GitNexus Browser Client). For each scenario, record 1–2 sentence outcome (e.g. "Returns main programs and top-level drivers; identifies entry points."). | `docs/testing-scenarios.md` |
+| 4.1.1 | Run the 10 scenarios (or the 6 from the assignment) against https://gitnexus.smallcatlabs.com (or a local backend + GitNexus Browser Client). For each scenario, record 1–2 sentence outcome (e.g. "Returns main programs and top-level drivers; identifies entry points."). | `docs/testing-scenarios.md` |
 | 4.1.2 | Fill the **Outcomes** table in `docs/testing-scenarios.md` with the recorded outcomes. Update the "Usage" section if the script URL or location changes (e.g. from `lapack-lens/scripts/run_performance_tests.py` to a GitNexus Browser Client/backend script). | `docs/testing-scenarios.md` |
 | 4.1.3 | **Optional:** Add a small script (e.g. Node or Python) that runs a fixed set of queries against the backend (and optionally the LLM step) and outputs results so the Outcomes table can be regenerated or verified. | New script in repo; reference from `docs/testing-scenarios.md` |
 
@@ -150,7 +150,7 @@ For quick verification against [docs/project-definition.md](../project-definitio
 - [ ] Pre-Search: [docs/pre-search.md](../pre-search.md) (already met)
 - [ ] RAG Architecture doc: client name **GitNexus Browser Client**, **§6 performance filled**
 - [ ] **AI Cost Analysis:** dev spend (Gemini usage) + 100/1K/10K/100K projections
-- [ ] Deployed application: https://lapack.smallcatlabs.com
+- [ ] Deployed application: https://gitnexus.smallcatlabs.com
 - [ ] **Social post:** *out of scope for this plan* — author will deliver
 
 Query interface: NL input, snippets with file/line, **relevance scores** (Code Inspector), answer, drill-down (already implemented).  

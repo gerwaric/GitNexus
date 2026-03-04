@@ -1,6 +1,6 @@
 # Gap Analysis: GitNexus + gitnexus-web vs LegacyLens G4 Submission
 
-This document compares the **current state** of **GitNexus** (CLI, REST server) and the **GitNexus Browser Client** (gitnexus-web: React UI + Nexus AI) to the **LegacyLens final G4 submission requirements** in [docs/project-definition.md](../project-definition.md). The baseline is the app deployed at **https://lapack.smallcatlabs.com** (GitNexus Browser Client connected to a GitNexus backend serving an indexed LAPACK repo).
+This document compares the **current state** of **GitNexus** (CLI, REST server) and the **GitNexus Browser Client** (gitnexus-web: React UI + Nexus AI) to the **LegacyLens final G4 submission requirements** in [docs/project-definition.md](../project-definition.md). The baseline is the app deployed at **https://gitnexus.smallcatlabs.com** (GitNexus Browser Client connected to a GitNexus backend serving an indexed LAPACK repo).
 
 This analysis defines **gaps and goals** for a later mitigation plan. It is not a step-by-step plan. The goal is to meet project requirements in a clear, simple way without over-delivering or over-complicating.
 
@@ -28,7 +28,7 @@ Requirements from project-definition § MVP (24 Hours). All required to pass.
 | Natural language query interface (CLI or web) | **Met** | gitnexus-web Nexus AI chat; backend mode uses HTTP tools. Refs: `gitnexus-web/src/hooks/useAppState.tsx` `sendChatMessage`, `initializeBackendAgent`. |
 | Return relevant code snippets with file/line references | **Met** | Tool results include file path and line ranges. Code references panel (Code Inspector) shows file/line + snippet (`gitnexus-web/src/components/CodeReferencesPanel.tsx`); markdown code blocks in chat get syntax highlighting (`gitnexus-web/src/components/MarkdownRenderer.tsx`). |
 | Basic answer generation using retrieved context | **Met** | LLM uses tool outputs (search, context, cypher, impact, etc.) to generate answers. |
-| Deployed and publicly accessible | **Met** | **https://lapack.smallcatlabs.com** (user-confirmed; subdomain may change later). |
+| Deployed and publicly accessible | **Met** | **https://gitnexus.smallcatlabs.com** (user-confirmed; subdomain may change later). |
 
 **References**
 
@@ -37,7 +37,7 @@ Requirements from project-definition § MVP (24 Hours). All required to pass.
 
 **Open questions / issues / decisions**
 
-- **Deployed link in repo:** README/submission should explicitly state the deployed URL (e.g. lapack.smallcatlabs.com) so graders can access it.
+- **Deployed link in repo:** README/submission should explicitly state the deployed URL (e.g. gitnexus.smallcatlabs.com) so graders can access it.
 - **Architecture:** Graders have confirmed that documenting the symbol-level graph + KuzuDB + hybrid search as the chosen "RAG architecture" is sufficient; no parallel chunk-based pipeline required.
 
 ---
@@ -129,7 +129,7 @@ Assignment suggests testing with 6 query types (main entry point, functions modi
 
 **Open questions / issues / decisions**
 
-- **Goal:** Run the 10 (or 6) scenarios against lapack.smallcatlabs.com (or local backend), record 1–2 sentence outcomes per scenario, and fill the Outcomes table.
+- **Goal:** Run the 10 (or 6) scenarios against gitnexus.smallcatlabs.com (or local backend), record 1–2 sentence outcomes per scenario, and fill the Outcomes table.
 - **Optional:** Add a small script that runs a fixed query set against the backend + optional LLM step, to produce repeatable results for the doc.
 
 ---
@@ -280,12 +280,12 @@ Assignment suggests testing with 6 query types (main entry point, functions modi
 
 | Deliverable | Required | Status | Notes |
 |-------------|----------|--------|-------|
-| GitHub repository | Setup guide, architecture overview, deployed link | **Partial** | README has setup; architecture could point to RAG doc and/or DESIGN; **deployed link** (lapack.smallcatlabs.com) not yet in README. |
+| GitHub repository | Setup guide, architecture overview, deployed link | **Partial** | README has setup; architecture could point to RAG doc and/or DESIGN; **deployed link** (gitnexus.smallcatlabs.com) not yet in README. |
 | Demo video (3–5 min) | Queries, retrieval results, answer generation | **Out of scope** | Author will record and link; not part of mitigation plan. |
 | Pre-Search document | Phase 1–3 checklist | **Met** | [docs/pre-search.md](../pre-search.md). Note: project later pivoted to GitNexus (no Pinecone/Voyage/LangChain); treat as historical. |
 | RAG Architecture doc | 1–2 pages, template sections | **Partial** | Exists; needs client name update ("GitNexus Browser Client") and §6 filled. |
 | AI Cost Analysis | Dev spend + projections | **Gap** | Missing (see §11). Use Google Gemini usage data (CLI/API or manual). |
-| Deployed application | Publicly accessible | **Met** | https://lapack.smallcatlabs.com. |
+| Deployed application | Publicly accessible | **Met** | https://gitnexus.smallcatlabs.com. |
 | Social post | X or LinkedIn, description, features, demo/screenshots, @GauntletAI | **Out of scope** | Author will publish; not part of mitigation plan. |
 
 **References**
@@ -294,7 +294,7 @@ Assignment suggests testing with 6 query types (main entry point, functions modi
 
 **Open questions / issues / decisions**
 
-- **README:** Add a clear "Deployed demo" or "Try it" link: https://lapack.smallcatlabs.com (and update when subdomain changes).
+- **README:** Add a clear "Deployed demo" or "Try it" link: https://gitnexus.smallcatlabs.com (and update when subdomain changes).
 - **Demo video / social post:** Author will create and publish; out of scope for mitigation plan.
 
 ---
@@ -308,7 +308,7 @@ Grouped by category for the future step-by-step mitigation plan. Each item is a 
 - **RAG Architecture doc:** Update "Lapack Lens" / "gitnexus-web" → **GitNexus Browser Client**; fill §6 Performance results with measured latency and ingestion time.
 - **Chunking:** Optionally add a short mapping in RAG doc (or separate subsection) to assignment’s chunking strategies table.
 - **AI Cost Analysis:** Create document with dev/test spend and production projections (100/1K/10K/100K users). Use **Google Gemini** as LLM provider; gather usage via Gemini CLI/API or manual export with direction.
-- **Deployed link:** Add https://lapack.smallcatlabs.com to README (and submission).
+- **Deployed link:** Add https://gitnexus.smallcatlabs.com to README (and submission).
 
 ### Query interface
 
@@ -338,4 +338,4 @@ The assignment describes a **classic RAG** pipeline (chunks → embed → vector
 
 ---
 
-*Baseline: GitNexus + GitNexus Browser Client (gitnexus-web); deployment: https://lapack.smallcatlabs.com. Previous analysis: [docs/legacy-lens/gap-analysis-legacylens.md](../legacy-lens/gap-analysis-legacylens.md).*
+*Baseline: GitNexus + GitNexus Browser Client (gitnexus-web); deployment: https://gitnexus.smallcatlabs.com. Previous analysis: [docs/legacy-lens/gap-analysis-legacylens.md](../legacy-lens/gap-analysis-legacylens.md).*
