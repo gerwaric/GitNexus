@@ -115,6 +115,30 @@ TOOLS = [
     },
 ]
 
+# Brief summaries for the tools panel (name, short description)
+TOOL_SUMMARIES = [
+    (
+        "query_lapack",
+        "Search the knowledge graph by concept or keyword. Returns execution flows (call chains) and related symbols with file locations. Use for “how does X work?” or “where is Y?”.",
+    ),
+    (
+        "context",
+        "360° view of one symbol: callers, callees, imports, and which execution flows it participates in. Use after a search to inspect a specific routine or file.",
+    ),
+    (
+        "cypher",
+        "Run a custom Cypher query on the code graph. For advanced structural questions (e.g. all callers of symbols in a module).",
+    ),
+    (
+        "impact",
+        "Blast radius: what would be affected by changing a routine? Shows dependents by depth and risk. Use for “what breaks if I change X?”.",
+    ),
+    (
+        "wiki",
+        "Generate repo documentation from the graph (module overview, cross-references). Can take 1–5 minutes.",
+    ),
+]
+
 SYSTEM_PROMPT = """You answer questions about the LAPACK (Linear Algebra PACKage) codebase using GitNexus code intelligence.
 
 - Use the query_lapack tool for natural-language or keyword search (e.g. "matrix multiplication", "dgemm", "eigenvalue solver").
@@ -232,7 +256,30 @@ def chat_round(messages: list[dict], client: OpenAI) -> tuple[list[dict], str | 
 def main():
     st.set_page_config(page_title="Lapack Lens", page_icon="🔬", layout="centered")
     st.title("Lapack Lens")
-    st.caption("Ask questions about the LAPACK codebase. Powered by GitNexus + OpenAI.")
+    st.caption(
+        "Ask questions about the [LAPACK](https://www.netlib.org/lapack/) codebase. "
+        "Powered by [GitNexus](https://github.com/gerwaric/GitNexus) + OpenAI."
+    )
+
+    # Collapsible side panel: tools available to the chat agent
+    with st.sidebar:
+        st.subheader("Chat tools")
+        st.caption("These are the tools the chat assistant can use to answer your questions.")
+        for name, summary in TOOL_SUMMARIES:
+            with st.expander(name, expanded=False):
+                st.caption(summary)
+
+        st.subheader("References")
+        st.markdown(
+            """
+            - <a href="https://fortran-lang.org/" target="_blank" rel="noopener noreferrer">Fortran ↗</a>
+            - <a href="https://www.netlib.org/lapack/" target="_blank" rel="noopener noreferrer">LAPACK home ↗</a>
+            - <a href="https://www.netlib.org/lapack/explore-html/" target="_blank" rel="noopener noreferrer">LAPACK documentation browser ↗</a>
+            - <a href="https://www.hpc.lsu.edu/training/weekly-materials/Past%20Tutorials/Intro-LAPACK-0309.pdf" target="_blank" rel="noopener noreferrer">Introduction to LAPACK ↗</a>
+            - <a href="https://github.com/gerwaric/GitNexus" target="_blank" rel="noopener noreferrer">GitNexus (Fortran fork) ↗</a>
+            """,
+            unsafe_allow_html=True,
+        )
 
     if not OPENAI_API_KEY:
         st.error("OPENAI_API_KEY is not set. Set it in your environment or in a .env file.")

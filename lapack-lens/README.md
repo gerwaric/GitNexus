@@ -26,6 +26,8 @@ A minimal chat app that answers natural-language questions about the LAPACK code
 
 ---
 
+**Live reload:** The Streamlit app directory is mounted into the container. After the first `--build`, edit files under `lapack-lens/app` and Streamlit will reload automatically — no need to rebuild the image.
+
 ## Run Streamlit only (backend separate)
 
 If the GitNexus server is already running (e.g. `npx gitnexus serve` from the repo root with an indexed repo):

@@ -1,5 +1,8 @@
 # Local run: from repo root: docker compose -f lapack-lens/docker-compose.yml up --build
 # Requires OPENAI_API_KEY (e.g. in lapack-lens/.env or export).
+#
+# App code is mounted so you can edit lapack-lens/app and see changes after Streamlit
+# reloads (no image rebuild). First run still needs --build to create the image + index.
 
 services:
   app:
@@ -8,6 +11,9 @@ services:
       dockerfile: lapack-lens/Dockerfile
     ports:
       - "8501:8501"
+    volumes:
+      # Live-reload: app code from host (edit without rebuilding)
+      - ./app:/app/app:ro
     environment:
       - GITNEXUS_URL=http://127.0.0.1:4747
       - OPENAI_API_KEY=${OPENAI_API_KEY}
