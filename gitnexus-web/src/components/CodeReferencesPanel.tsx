@@ -13,9 +13,11 @@ function deriveLanguage(filePath: string, displayName?: string): string {
   if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) return 'javascript';
   if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) return 'typescript';
   if (/\.(f90?|for)$/i.test(filePath)) return 'fortran';
-  // Fallback: path may be stem-only (e.g. from graph); check display name / path for Fortran extensions
+  if (/\.(cbl|cob|cpy)$/i.test(filePath)) return 'cobol';
+  // Fallback: path may be stem-only (e.g. from graph); check display name / path for Fortran/COBOL extensions
   const name = (displayName ?? filePath).toLowerCase();
   if (/\.(f90?|for)$/.test(name) || name.endsWith('.f') || name.endsWith('.f90') || name.endsWith('.for')) return 'fortran';
+  if (/\.(cbl|cob|cpy)$/.test(name) || name.endsWith('.cbl') || name.endsWith('.cob') || name.endsWith('.cpy')) return 'cobol';
   return 'text';
 }
 

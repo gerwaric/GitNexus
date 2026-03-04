@@ -65,6 +65,7 @@ Design notes and implementation plans for language support and tooling.
 |----------|-------------|
 | [design/fortran-support.md](design/fortran-support.md) | Fortran support in GitNexus (tree-sitter, symbol extraction). |
 | [design/fortran-code-inspector-highlighting.md](design/fortran-code-inspector-highlighting.md) | Fortran in Code Inspector: fixed-form comment highlighting and Refractor grammar patch. |
+| [design/cobol-code-inspector-highlighting.md](design/cobol-code-inspector-highlighting.md) | COBOL in Code Inspector: extension mapping and Refractor usage (.cbl, .cob, .cpy). |
 | [design/cobol-support.md](design/cobol-support.md) | COBOL support: design discussion and current status. |
 | [design/cobol-implementation-plan.md](design/cobol-implementation-plan.md) | Step-by-step COBOL implementation plan. |
 | [design/cobol-wasm-fix-options.md](design/cobol-wasm-fix-options.md) | Options for fixing COBOL WASM build or runtime. |

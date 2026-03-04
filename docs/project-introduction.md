@@ -40,6 +40,8 @@ Use this doc to load the basics of the project and find the right documentation 
 | Doc | Purpose |
 |-----|---------|
 | [docs/design/fortran-support.md](./design/fortran-support.md) | Fortran support in GitNexus (parsing, symbols, graph). |
+| [docs/design/fortran-code-inspector-highlighting.md](./design/fortran-code-inspector-highlighting.md) | Fortran syntax highlighting in Code Inspector (fixed-form comments, Refractor patch). |
+| [docs/design/cobol-code-inspector-highlighting.md](./design/cobol-code-inspector-highlighting.md) | COBOL syntax highlighting in Code Inspector (.cbl, .cob, .cpy). |
 | [docs/design/tree-sitter-upgrade-notes.md](./design/tree-sitter-upgrade-notes.md) | Tree-sitter upgrade notes. |
 | [docs/design/testing.md](./design/testing.md) | Testing approach and notes. |
 
