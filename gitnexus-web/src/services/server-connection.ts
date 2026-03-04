@@ -158,3 +158,27 @@ export async function connectToServer(
 
 /** Default repo name when connecting to server without selecting a repo (e.g. Server tab, ?server= URL). */
 export const DEFAULT_SERVER_REPO = 'lapack';
+
+/**
+ * Fetch /api/repos, then connect using the first repo.
+ * Use this when the user only provides a server URL (Server tab or ?server=).
+ * Throws with a clear message if no repos are indexed.
+ */
+export async function connectToServerWithFirstRepo(
+  url: string,
+  onProgress?: (phase: string, downloaded: number, total: number | null) => void,
+  signal?: AbortSignal
+): Promise<ConnectToServerResult> {
+  const baseUrl = normalizeServerUrl(url);
+
+  onProgress?.('validating', 0, null);
+  const repos = await fetchRepos(baseUrl);
+  if (!repos.length) {
+    throw new Error(
+      'No repositories indexed on this server. On the server run: gitnexus analyze (in the repo to index).'
+    );
+  }
+
+  const repoName = repos[0].name;
+  return connectToServer(url, onProgress, signal, repoName);
+}

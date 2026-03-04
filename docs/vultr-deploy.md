@@ -62,6 +62,24 @@ sudo REPO_URL=https://github.com/YOUR_USER/GitNexus.git BRANCH=main /tmp/vultr-s
 
 The script installs Node 20, clones the repo, builds backend and web, and starts the app on port **8080**. When it finishes, open **http://YOUR_SERVER_IP:8080** in your browser.
 
+**Important:** The script does **not** run `gitnexus analyze`. To use the Server option in the web app, SSH in and index the repo once:
+
+```bash
+sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c \
+  'cd /opt/gitnexus && node /opt/gitnexus/gitnexus/dist/cli/index.js analyze'
+```
+
+Then connect in the app with server address `http://YOUR_SERVER_IP:8080`.
+
+To index **another repo** (e.g. [LAPACK](https://github.com/Reference-LAPACK/lapack)):
+
+```bash
+sudo git clone --depth 1 https://github.com/Reference-LAPACK/lapack.git /opt/lapack
+sudo chown -R gitnexus:gitnexus /opt/lapack
+sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c \
+  'cd /opt/lapack && node /opt/gitnexus/gitnexus/dist/cli/index.js analyze'
+```
+
 ### 4. Open port 8080 (if the app doesn't load)
 
 On the server:

@@ -51,6 +51,10 @@ npm run build
 
 echo "[5/6] Creating service user and systemd unit..."
 id "$SERVICE_USER" 2>/dev/null || useradd -r -s /bin/false "$SERVICE_USER"
+# Give gitnexus a home so the global registry (~/.gitnexus/registry.json) is used by both server and CLI
+GITNEXUS_HOME="${GITNEXUS_HOME:-/var/lib/gitnexus}"
+mkdir -p "$GITNEXUS_HOME"
+chown "$SERVICE_USER:$SERVICE_USER" "$GITNEXUS_HOME"
 chown -R "$SERVICE_USER:$SERVICE_USER" "$APP_DIR"
 
 cat > /etc/systemd/system/gitnexus.service << EOF
@@ -63,6 +67,7 @@ Type=simple
 User=$SERVICE_USER
 WorkingDirectory=$APP_DIR/gitnexus
 Environment=NODE_ENV=production
+Environment=HOME=$GITNEXUS_HOME
 Environment=GITNEXUS_WEB_ROOT=$APP_DIR/gitnexus-web/dist
 Environment=HOST=0.0.0.0
 Environment=PORT=8080

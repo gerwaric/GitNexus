@@ -12,7 +12,7 @@ import { CodeReferencesPanel } from './components/CodeReferencesPanel';
 import { FileEntry } from './services/zip';
 import { getActiveProviderConfig } from './core/llm/settings-service';
 import { createKnowledgeGraph } from './core/graph/graph';
-import { connectToServer, fetchRepos, normalizeServerUrl, DEFAULT_SERVER_REPO, type ConnectToServerResult } from './services/server-connection';
+import { connectToServer, fetchRepos, normalizeServerUrl, connectToServerWithFirstRepo, type ConnectToServerResult } from './services/server-connection';
 
 const AppContent = () => {
   const {
@@ -190,7 +190,7 @@ const AppContent = () => {
 
     const baseUrl = normalizeServerUrl(serverUrl);
 
-    connectToServer(serverUrl, (phase, downloaded, total) => {
+    connectToServerWithFirstRepo(serverUrl, (phase, downloaded, total) => {
       if (phase === 'validating') {
         setProgress({ phase: 'extracting', percent: 5, message: 'Connecting to server...', detail: 'Validating server' });
       } else if (phase === 'downloading') {
@@ -200,7 +200,7 @@ const AppContent = () => {
       } else if (phase === 'extracting') {
         setProgress({ phase: 'extracting', percent: 97, message: 'Processing...', detail: 'Extracting file contents' });
       }
-    }, undefined, DEFAULT_SERVER_REPO).then(async (result) => {
+    }).then(async (result) => {
       setServerBaseUrl(baseUrl);
       handleServerConnect(result, serverUrl);
       try {

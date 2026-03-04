@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, DragEvent } from 'react';
 import { Upload, FileArchive, Github, Loader2, ArrowRight, Key, Eye, EyeOff, Globe, X } from 'lucide-react';
 import { cloneRepository, parseGitHubUrl } from '../services/git-clone';
-import { connectToServer, DEFAULT_SERVER_REPO, type ConnectToServerResult } from '../services/server-connection';
+import { connectToServerWithFirstRepo, type ConnectToServerResult } from '../services/server-connection';
 import { FileEntry } from '../services/zip';
 
 interface DropZoneProps {
@@ -143,13 +143,12 @@ export const DropZone = ({ onFileSelect, onGitClone, onServerConnect }: DropZone
     abortControllerRef.current = abortController;
 
     try {
-      const result = await connectToServer(
+      const result = await connectToServerWithFirstRepo(
         urlToUse,
         (phase, downloaded, total) => {
           setServerProgress({ phase, downloaded, total });
         },
-        abortController.signal,
-        DEFAULT_SERVER_REPO
+        abortController.signal
       );
 
       if (onServerConnect) {
@@ -164,6 +163,10 @@ export const DropZone = ({ onFileSelect, onGitClone, onServerConnect }: DropZone
       const message = err instanceof Error ? err.message : 'Failed to connect to server';
       if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
         setError('Cannot reach server. Check the URL and ensure the server is running.');
+      } else if (message.includes('No repositories indexed')) {
+        setError(message);
+      } else if (message.includes('404') || message.includes('not found')) {
+        setError('Server returned 404. Ensure at least one repo is indexed (on server: gitnexus analyze).');
       } else {
         setError(message);
       }
