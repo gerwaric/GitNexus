@@ -4,8 +4,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 // Ensure Fortran (and other Refractor languages) are in the bundle; Prism build uses Refractor from refractor/all
 import 'refractor/all';
-// Patch Fortran grammar to highlight fixed-form comment lines (C, c, * in column 1)
-import '../lib/fortran-prism-patch';
 import { useAppState } from '../hooks/useAppState';
 import { NODE_COLORS } from '../lib/constants';
 

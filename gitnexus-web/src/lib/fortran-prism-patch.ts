@@ -1,22 +1,26 @@
 /**
  * Patches Refractor's Fortran grammar to support fixed-form comment lines
  * (C, c, or * in column 1). The default grammar only matches !-style comments.
- * Run this once at app load so Code Inspector highlights Fortran comments correctly.
+ * Refractor's register() skips if the language already exists (fortran is
+ * registered by refractor/all), so we mutate the existing grammar in place.
  */
 import { refractor } from 'refractor/all';
-import fortran from 'refractor/fortran';
 
-function fortranWithFixedFormComments(Prism: any) {
-  fortran(Prism);
-  const g = Prism.languages.fortran;
-  const existing = g.comment as { pattern: RegExp; greedy?: boolean };
-  g.comment = [
-    existing?.pattern ? existing : { pattern: /!.*/, greedy: true },
-    { pattern: /^[Cc*][^\n]*/m, greedy: true },
-  ];
+const g = refractor.languages.fortran as Record<string, unknown> | undefined;
+if (!g || typeof g !== 'object') {
+  // fortran not yet registered (e.g. refractor/all not loaded); skip
+} else {
+  const existing = g.comment as { pattern: RegExp; greedy?: boolean } | undefined;
+  const freeFormComment =
+    existing && (existing as any).pattern
+      ? existing
+      : { pattern: /!.*/, greedy: true };
+  const fixedFormComment = { pattern: /^[ \t]*[Cc*][^\n]*/m, greedy: true };
+  (g as Record<string, unknown>).comment = [fixedFormComment, freeFormComment];
+
+  // Try comment before other tokens so * / C at line start become comment, not operator/keyword
+  const { comment, ...rest } = g as Record<string, unknown>;
+  const reordered = { comment, ...rest };
+  Object.keys(g).forEach((k) => delete (g as Record<string, unknown>)[k]);
+  Object.assign(g, reordered);
 }
-
-(fortranWithFixedFormComments as any).displayName = 'fortran';
-(fortranWithFixedFormComments as any).aliases = [];
-
-refractor.register(fortranWithFixedFormComments as any);
