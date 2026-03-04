@@ -36,6 +36,10 @@ export const getLanguageFromFilename = (filename: string): SupportedLanguages | 
   // Fortran: .f90 before .f (same order as CLI)
   if (filename.endsWith('.f90')) return SupportedLanguages.Fortran;
   if (filename.endsWith('.f')) return SupportedLanguages.Fortran;
+  // COBOL: .cbl, .cob, .cpy (copybooks)
+  if (filename.endsWith('.cbl')) return SupportedLanguages.Cobol;
+  if (filename.endsWith('.cob')) return SupportedLanguages.Cobol;
+  if (filename.endsWith('.cpy')) return SupportedLanguages.Cobol;
   return null;
 };
 

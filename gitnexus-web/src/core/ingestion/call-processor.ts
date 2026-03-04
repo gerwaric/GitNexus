@@ -39,6 +39,9 @@ const FUNCTION_NODE_TYPES = new Set([
   'function_statement',
   'subroutine_statement',
   'module_procedure_statement',
+  // COBOL
+  'paragraph_header',
+  'section_header',
 ]);
 
 /**
@@ -110,6 +113,14 @@ const findEnclosingFunction = (
         current.type === 'module_procedure_statement'
       ) {
         // Fortran procedures
+        const nameNode = current.childForFieldName?.('name') ||
+          current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
+        funcName = nameNode?.text;
+      } else if (
+        current.type === 'paragraph_header' ||
+        current.type === 'section_header'
+      ) {
+        // COBOL paragraph/section
         const nameNode = current.childForFieldName?.('name') ||
           current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
         funcName = nameNode?.text;

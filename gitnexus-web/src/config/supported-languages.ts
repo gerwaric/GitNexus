@@ -12,4 +12,5 @@ export enum SupportedLanguages {
     // Ruby = 'ruby',
     Swift = 'swift',
     Fortran = 'fortran',
+    Cobol = 'cobol',
 }

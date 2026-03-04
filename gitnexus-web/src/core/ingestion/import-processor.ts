@@ -41,6 +41,23 @@ const resolveImportPath = (
     }
   }
 
+  // COBOL COPY: book = stem; try .cpy then .cbl then .cob
+  if (language === SupportedLanguages.Cobol && !importPath.includes('/')) {
+    const normalizedFileList = allFileList.map(p => p.replace(/\\/g, '/'));
+    for (const ext of ['.cpy', '.cbl', '.cob']) {
+      const stem = importPath + ext;
+      const matchIdx = normalizedFileList.findIndex(
+        filePath => filePath.endsWith('/' + stem) || filePath === stem ||
+          filePath.toLowerCase().endsWith('/' + stem.toLowerCase()) || filePath.toLowerCase() === stem.toLowerCase()
+      );
+      if (matchIdx !== -1) {
+        const match = allFileList[matchIdx];
+        resolveCache.set(cacheKey, match);
+        return match;
+      }
+    }
+  }
+
   // 1. Resolve '..' and '.' for relative imports
   const currentDir = currentFile.split('/').slice(0, -1);
   const parts = importPath.split('/');
@@ -75,6 +92,8 @@ const resolveImportPath = (
     '.rs', '/mod.rs',
     // Fortran / INCLUDE
     '.f90', '.f', '.inc',
+    // COBOL
+    '.cpy', '.cbl', '.cob',
   ];
   
   if (importPath.startsWith('.')) {

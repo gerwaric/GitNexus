@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:fortran-wasm": "bash scripts/build-fortran-wasm.sh",
+    "build:cobol-wasm": "bash scripts/build-cobol-wasm.sh",
     "preview": "vite preview"
   },
   "dependencies": {

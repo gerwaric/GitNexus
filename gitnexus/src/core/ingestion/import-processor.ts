@@ -218,6 +218,8 @@ const EXTENSIONS = [
   '.swift',
   // Fortran (.f90 before .f per design; .inc for INCLUDE)
   '.f90', '.f', '.inc',
+  // COBOL (.cpy, .cbl, .cob for COPY resolution)
+  '.cpy', '.cbl', '.cob',
 ];
 
 /**
@@ -424,6 +426,12 @@ const resolveImportPath = (
     if (fortranResult) return cache(fortranResult);
   }
 
+  // ---- COBOL COPY: book [OF/IN lib] = stem; try .cpy then .cbl then .cob ----
+  if (language === SupportedLanguages.Cobol && !importPath.includes('/')) {
+    const cobolResult = resolveCobolCopy(importPath, allFiles, index);
+    if (cobolResult) return cache(cobolResult);
+  }
+
   // ---- Generic relative import resolution (./ and ../) ----
   const currentDir = currentFile.split('/').slice(0, -1);
   const parts = importPath.split('/');
@@ -550,6 +558,30 @@ function resolveFortranUseModule(
   const extensions = ['.f90', '.f'];
   for (const ext of extensions) {
     const stem = moduleName + ext;
+    if (index) {
+      const result = index.get(stem) ?? index.getInsensitive(stem);
+      if (result) return result;
+    } else {
+      for (const filePath of allFiles) {
+        const normalized = filePath.replace(/\\/g, '/');
+        if (normalized.endsWith(stem) || normalized.toLowerCase().endsWith(stem.toLowerCase())) {
+          return filePath;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/** COBOL COPY book → file stem; try .cpy then .cbl then .cob (first match wins). */
+function resolveCobolCopy(
+  bookStem: string,
+  allFiles: Set<string>,
+  index?: SuffixIndex,
+): string | null {
+  const extensions = ['.cpy', '.cbl', '.cob'];
+  for (const ext of extensions) {
+    const stem = bookStem + ext;
     if (index) {
       const result = index.get(stem) ?? index.getInsensitive(stem);
       if (result) return result;

@@ -110,6 +110,13 @@ const ENTRY_POINT_PATTERNS: Record<string, RegExp[]> = {
     /^program_/,              // program_* convention
   ],
 
+  // COBOL — main program (PROGRAM-ID) names
+  'cobol': [
+    /^main$/i,
+    /^(run|start|begin|go)$/i,
+    /^program_/i,
+  ],
+
   // Swift / iOS
   'swift': [
     /^viewDidLoad$/,                  // UIKit lifecycle

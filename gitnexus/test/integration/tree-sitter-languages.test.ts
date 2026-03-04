@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { loadParser, loadLanguage } from '../../src/core/tree-sitter/parser-loader.js';
+import { createRequire } from 'node:module';
+import { loadParser, loadLanguage, isLanguageAvailable } from '../../src/core/tree-sitter/parser-loader.js';
 import { LANGUAGE_QUERIES } from '../../src/core/ingestion/tree-sitter-queries.js';
 import { SupportedLanguages } from '../../src/config/supported-languages.js';
 import Parser from 'tree-sitter';
 
+const require = createRequire(import.meta.url);
 const fixturesDir = path.resolve(__dirname, '..', 'fixtures', 'sample-code');
 
 function readFixture(filename: string): string {
@@ -213,6 +215,41 @@ describe('Tree-sitter multi-language parsing', () => {
       } catch (e: any) {
         expect(e.message).toContain('Unsupported language');
       }
+    });
+  });
+
+  describe('COBOL (vendored grammar)', () => {
+    it('loads tree-sitter-cobol and parses minimal COBOL', async () => {
+      let Cobol: any;
+      try {
+        Cobol = require('tree-sitter-cobol');
+      } catch {
+        // Vendor dir missing or addon not built — skip
+        return;
+      }
+      const p = new Parser();
+      p.setLanguage(Cobol);
+      const src = [
+        '       IDENTIFICATION DIVISION.',
+        '       PROGRAM-ID. HELLO.',
+        '       PROCEDURE DIVISION.',
+        '           DISPLAY "HELLO".',
+        '           STOP RUN.',
+      ].join('\n');
+      const tree = p.parse(src);
+      expect(tree.rootNode).toBeDefined();
+      expect(tree.rootNode.type).toBe('start');
+    });
+
+    it('loads Cobol via parser-loader and query extracts at least one definition', async () => {
+      if (!isLanguageAvailable(SupportedLanguages.Cobol)) return;
+      await loadLanguage(SupportedLanguages.Cobol);
+      const content = readFixture('simple.cbl');
+      const { matches } = parseAndQuery(parser, content, LANGUAGE_QUERIES[SupportedLanguages.Cobol]);
+      const defs = extractDefinitions(matches);
+      expect(defs.length).toBeGreaterThan(0);
+      const defTypes = defs.map(d => d.type);
+      expect(defTypes.some(t => t === 'definition.module' || t === 'definition.function')).toBe(true);
     });
   });
 

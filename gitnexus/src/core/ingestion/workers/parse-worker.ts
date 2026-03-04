@@ -12,6 +12,7 @@ import Rust from 'tree-sitter-rust';
 import Kotlin from 'tree-sitter-kotlin';
 import PHP from 'tree-sitter-php';
 import Fortran from 'tree-sitter-fortran';
+import Cobol from 'tree-sitter-cobol';
 import { createRequire } from 'node:module';
 import { SupportedLanguages } from '../../../config/supported-languages.js';
 import { LANGUAGE_QUERIES } from '../tree-sitter-queries.js';
@@ -128,6 +129,7 @@ const languageMap: Record<string, any> = {
   [SupportedLanguages.Kotlin]: Kotlin,
   [SupportedLanguages.PHP]: PHP.php_only,
   [SupportedLanguages.Fortran]: Fortran,
+  [SupportedLanguages.Cobol]: Cobol,
   ...(Swift ? { [SupportedLanguages.Swift]: Swift } : {}),
 };
 
@@ -145,6 +147,11 @@ const setLanguage = (language: SupportedLanguages, filePath: string): void => {
         'Fortran grammar failed to load: the installed tree-sitter-fortran was built for tree-sitter 0.26, but this project uses tree-sitter ^0.21 (ABI mismatch). ' +
         'Use a 0.21-compatible grammar: install tree-sitter-fortran at v0.1.0 (e.g. "tree-sitter-fortran": "github:stadelmanma/tree-sitter-fortran#v0.1.0" in package.json) and run npm install. ' +
         'See docs/design/tree-sitter-upgrade-notes.md and docs/design/fortran-support.md.'
+      );
+    }
+    if (language === SupportedLanguages.Cobol && err instanceof TypeError) {
+      throw new Error(
+        'COBOL grammar failed to load. Ensure tree-sitter-cobol is vendored and built (see gitnexus/scripts/vendor-tree-sitter-cobol.sh and docs/design/tree-sitter-cobol-notes.md).'
       );
     }
     throw err;
@@ -297,6 +304,10 @@ const isNodeExported = (node: any, name: string, language: string): boolean => {
       return true;
     }
 
+    // COBOL: no export model; treat all symbols as exported
+    case 'cobol':
+      return true;
+
     default:
       return false;
   }
@@ -320,6 +331,8 @@ const FUNCTION_NODE_TYPES = new Set([
   'init_declaration', 'deinit_declaration',
   // Fortran
   'function_statement', 'subroutine_statement', 'module_procedure_statement',
+  // COBOL
+  'paragraph_header', 'section_header',
 ]);
 
 /** Walk up AST to find enclosing function, return its generateId or null for top-level */
@@ -370,6 +383,13 @@ const findEnclosingFunctionId = (node: any, filePath: string): string | null => 
         current.type === 'function_statement' ||
         current.type === 'subroutine_statement' ||
         current.type === 'module_procedure_statement'
+      ) {
+        const nameNode = current.childForFieldName?.('name') ||
+          current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
+        funcName = nameNode?.text;
+      } else if (
+        current.type === 'paragraph_header' ||
+        current.type === 'section_header'
       ) {
         const nameNode = current.childForFieldName?.('name') ||
           current.children?.find((c: any) => c.type === 'identifier' || c.type === 'name');
@@ -643,7 +663,7 @@ const processBatch = (files: ParseWorkerInput[], onProgress?: (filesProcessed: n
         setLanguage(language, regularFiles[0].path);
         processFileGroup(regularFiles, language, queryString, result, onFileProcessed);
       } catch (err) {
-        if (language === SupportedLanguages.Fortran) {
+        if (language === SupportedLanguages.Fortran || language === SupportedLanguages.Cobol) {
           throw err;
         }
         // parser unavailable — skip this language group
@@ -656,7 +676,7 @@ const processBatch = (files: ParseWorkerInput[], onProgress?: (filesProcessed: n
         setLanguage(language, tsxFiles[0].path);
         processFileGroup(tsxFiles, language, queryString, result, onFileProcessed);
       } catch (err) {
-        if (language === SupportedLanguages.Fortran) {
+        if (language === SupportedLanguages.Fortran || language === SupportedLanguages.Cobol) {
           throw err;
         }
         // parser unavailable — skip this language group

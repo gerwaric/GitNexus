@@ -69,6 +69,17 @@ describe('parser-loader', () => {
       }
     });
 
+    it('loads Cobol language', async () => {
+      expect(isLanguageAvailable(SupportedLanguages.Cobol)).toBe(true);
+      try {
+        await loadLanguage(SupportedLanguages.Cobol);
+      } catch (err) {
+        // If grammar load fails (e.g. ABI mismatch), expect a clear error message
+        expect(err).toBeInstanceOf(Error);
+        expect((err as Error).message).toContain('COBOL');
+      }
+    });
+
     it('loads TSX grammar for .tsx files', async () => {
       // TSX uses a different grammar (TypeScript.tsx vs TypeScript.typescript)
       await expect(loadLanguage(SupportedLanguages.TypeScript, 'Component.tsx')).resolves.not.toThrow();

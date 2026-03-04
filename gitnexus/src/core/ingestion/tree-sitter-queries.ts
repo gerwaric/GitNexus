@@ -562,6 +562,26 @@ export const FORTRAN_QUERIES = `
   _derived_type_qualifier: (derived_type_qualifier (derived_type (identifier) @heritage.extends))) @heritage
 `;
 
+// COBOL queries - tree-sitter-cobol (program→Module, paragraph/section→Function, COPY, CALL, PERFORM)
+export const COBOL_QUERIES = `
+; Program (map to Module)
+(program_definition (identification_division (program_name) @name)) @definition.module
+
+; Paragraph and section (map to Function) — name is a field, content _WORD or integer
+(paragraph_header name: (_) @name) @definition.function
+(section_header name: (_) @name) @definition.function
+
+; COPY book — book field contains WORD or string (grammar: choice(WORD, string))
+(copy_statement book: (WORD) @import.source) @import
+(copy_statement book: (string) @import.source) @import
+
+; CALL program — _call_header is hidden; capture first substantive child (x field)
+(call_statement (_) @call.name) @call
+
+; PERFORM procedure — label can be qualified_word or literal
+(perform_statement_call_proc procedure: (perform_procedure (_) @call.name)) @call
+`;
+
 export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
   [SupportedLanguages.TypeScript]: TYPESCRIPT_QUERIES,
   [SupportedLanguages.JavaScript]: JAVASCRIPT_QUERIES,
@@ -576,5 +596,6 @@ export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
   [SupportedLanguages.Kotlin]: KOTLIN_QUERIES,
   [SupportedLanguages.Swift]: SWIFT_QUERIES,
   [SupportedLanguages.Fortran]: FORTRAN_QUERIES,
+  [SupportedLanguages.Cobol]: COBOL_QUERIES,
 };
  

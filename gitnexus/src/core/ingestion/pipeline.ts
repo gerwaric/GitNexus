@@ -110,6 +110,11 @@ export const runPipelineFromRepo = async (
     if (hasFortranFiles && !isLanguageAvailable(SupportedLanguages.Fortran)) {
       throw new Error('Fortran grammar is required but could not be loaded. Ensure tree-sitter-fortran is installed (e.g. npm install tree-sitter-fortran).');
     }
+    // COBOL is required: fail if repo has COBOL files but grammar could not be loaded
+    const hasCobolFiles = scannedFiles.some(f => getLanguageFromFilename(f.path) === SupportedLanguages.Cobol);
+    if (hasCobolFiles && !isLanguageAvailable(SupportedLanguages.Cobol)) {
+      throw new Error('COBOL grammar is required but could not be loaded. Ensure tree-sitter-cobol is vendored and built (see gitnexus/scripts/vendor-tree-sitter-cobol.sh and docs/design/tree-sitter-cobol-notes.md).');
+    }
     for (const [lang, count] of skippedByLang) {
       console.warn(`Skipping ${count} ${lang} file(s) — ${lang} parser not available (native binding may not have built). Try: npm rebuild tree-sitter-${lang}`);
     }

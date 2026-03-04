@@ -131,7 +131,11 @@ const isNodeExported = (node: any, name: string, language: string): boolean => {
       }
       return true;
     }
-    
+
+    // COBOL: no export model; treat all symbols as exported
+    case 'cobol':
+      return true;
+
     default:
       return false;
   }

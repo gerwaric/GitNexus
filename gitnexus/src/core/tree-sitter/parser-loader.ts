@@ -11,6 +11,7 @@ import Rust from 'tree-sitter-rust';
 import Kotlin from 'tree-sitter-kotlin';
 import PHP from 'tree-sitter-php';
 import Fortran from 'tree-sitter-fortran';
+import Cobol from 'tree-sitter-cobol';
 import { createRequire } from 'node:module';
 import { SupportedLanguages } from '../../config/supported-languages.js';
 
@@ -35,6 +36,7 @@ const languageMap: Record<string, any> = {
   [SupportedLanguages.Kotlin]: Kotlin,
   [SupportedLanguages.PHP]: PHP.php_only,
   [SupportedLanguages.Fortran]: Fortran,
+  [SupportedLanguages.Cobol]: Cobol,
   ...(Swift ? { [SupportedLanguages.Swift]: Swift } : {}),
 };
 
@@ -65,6 +67,11 @@ export const loadLanguage = async (language: SupportedLanguages, filePath?: stri
         'Fortran grammar failed to load: the installed tree-sitter-fortran was built for tree-sitter 0.26, but this project uses tree-sitter ^0.21 (ABI mismatch). ' +
         'Use a 0.21-compatible grammar: install tree-sitter-fortran at v0.1.0 (e.g. "tree-sitter-fortran": "github:stadelmanma/tree-sitter-fortran#v0.1.0" in package.json) and run npm install. ' +
         'See docs/design/tree-sitter-upgrade-notes.md and docs/design/fortran-support.md.'
+      );
+    }
+    if (language === SupportedLanguages.Cobol && err instanceof TypeError) {
+      throw new Error(
+        'COBOL grammar failed to load. Ensure tree-sitter-cobol is vendored and built (see gitnexus/scripts/vendor-tree-sitter-cobol.sh and docs/design/tree-sitter-cobol-notes.md).'
       );
     }
     throw err;
