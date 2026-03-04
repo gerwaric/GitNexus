@@ -122,11 +122,15 @@ const AppContent = () => {
       });
     } catch (error) {
       console.error('Pipeline error:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (error instanceof Error && error.stack) {
+        console.error('Pipeline error stack:', error.stack);
+      }
       setProgress({
         phase: 'error',
         percent: 0,
         message: 'Error processing repository',
-        detail: error instanceof Error ? error.message : 'Unknown error',
+        detail: message,
       });
       setTimeout(() => {
         setViewMode('onboarding');

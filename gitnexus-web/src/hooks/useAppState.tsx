@@ -430,6 +430,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Worker (single instance shared across app)
   const workerRef = useRef<Worker | null>(null);
   const apiRef = useRef<Comlink.Remote<IngestionWorkerApi> | null>(null);
+  // Stable ref for progress callback so Comlink always has a callable (avoids "reading 'apply' of undefined")
+  const progressCallbackRef = useRef<(progress: PipelineProgress) => void>(() => {});
 
   useEffect(() => {
     const worker = new Worker(
@@ -455,7 +457,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     const api = apiRef.current;
     if (!api) throw new Error('Worker not initialized');
 
-    const proxiedOnProgress = Comlink.proxy(onProgress);
+    progressCallbackRef.current = onProgress;
+    const proxiedOnProgress = Comlink.proxy((progress: PipelineProgress) => {
+      progressCallbackRef.current(progress);
+    });
     const serializedResult = await api.runPipeline(file, proxiedOnProgress, clusteringConfig);
     return deserializePipelineResult(serializedResult, createKnowledgeGraph);
   }, []);
@@ -468,7 +473,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     const api = apiRef.current;
     if (!api) throw new Error('Worker not initialized');
 
-    const proxiedOnProgress = Comlink.proxy(onProgress);
+    progressCallbackRef.current = onProgress;
+    const proxiedOnProgress = Comlink.proxy((progress: PipelineProgress) => {
+      progressCallbackRef.current(progress);
+    });
     const serializedResult = await api.runPipelineFromFiles(files, proxiedOnProgress, clusteringConfig);
     return deserializePipelineResult(serializedResult, createKnowledgeGraph);
   }, []);

@@ -163,10 +163,18 @@ export const processParsing = async (
     if (!language) continue;
 
     await loadLanguage(language, file.path);
-    
-    // 3. Parse the text content into an AST
-    const tree = parser.parse(file.content);
-    
+
+    // Parse the text content into an AST (try/catch: COBOL and some grammars can throw in external scanner)
+    let tree;
+    try {
+      tree = parser.parse(file.content);
+    } catch (parseError) {
+      if (import.meta.env.DEV) {
+        console.warn(`Parse failed for ${file.path} (${language}), skipping:`, parseError);
+      }
+      continue;
+    }
+
     // Store in cache immediately (this might evict an old one)
     astCache.set(file.path, tree);
     

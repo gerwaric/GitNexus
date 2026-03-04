@@ -22,18 +22,22 @@ const HOSTED_PROXY_URL = 'https://gitnexus.vercel.app/api/proxy';
 
 /**
  * Custom HTTP client that uses a query-param based proxy
- * - In development (localhost): uses the hosted Vercel proxy for reliability
- * - In production: uses the local /api/proxy endpoint
+ * - In development (localhost or 127.0.0.1): uses the hosted Vercel proxy for reliability
+ * - In production (Vercel): uses the local /api/proxy endpoint
+ * - Other hosts (e.g. backend serving the web app): use hosted proxy since they typically don't have /api/proxy
  */
 const createProxiedHttp = (): typeof http => {
-  const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isDevOrLocal =
+    hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
+  // Use hosted proxy when local or when not on Vercel (backend-served UI has no /api/proxy)
+  const useHostedProxy = isDevOrLocal || !hostname.endsWith('vercel.app');
+
   return {
     request: async (config) => {
-      // Use hosted proxy for localhost, local proxy for production
-      const proxyBase = isDev ? HOSTED_PROXY_URL : '/api/proxy';
+      const proxyBase = useHostedProxy ? HOSTED_PROXY_URL : '/api/proxy';
       const proxyUrl = `${proxyBase}?url=${encodeURIComponent(config.url)}`;
-      
+
       // Call the original http.request with the proxied URL
       return http.request({
         ...config,
