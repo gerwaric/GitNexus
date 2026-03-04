@@ -43,6 +43,8 @@ export interface CodeReference {
   label?: string;   // File, Function, Class, etc.
   name?: string;    // Display name
   source: 'ai' | 'user';  // How it was added
+  /** Relevance/confidence score 0–1 when available (e.g. from search RRF) */
+  score?: number;
 }
 
 export interface CodeReferenceFocus {
@@ -802,6 +804,31 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                 ? (currentContentStep.content || '')
                 : '';
 
+              // Helper: get relevance score for a file from the last search tool result (for display in Code Inspector)
+              const getScoreFromSearchSteps = (steps: MessageStep[], filePath: string): number | undefined => {
+                const searchResultStep = [...steps].reverse().find(
+                  s => s.type === 'tool_call' && s.toolCall?.name === 'search' && typeof s.toolCall?.result === 'string'
+                );
+                const text = searchResultStep?.type === 'tool_call' ? searchResultStep.toolCall?.result : undefined;
+                if (!text || !filePath) return undefined;
+                const pathSuffix = filePath.replace(/^.*\//, '');
+                const blocks = text.split(/\n\n+/);
+                for (const block of blocks) {
+                  const fileLine = block.match(/File:\s*([^\n]+)/);
+                  if (!fileLine) continue;
+                  const reportedPath = fileLine[1].trim().replace(/\s*\(lines.*$/, '').trim();
+                  if (reportedPath === filePath || reportedPath.endsWith(pathSuffix) || filePath.endsWith(reportedPath)) {
+                    const scoreMatch = block.match(/\[?score:\s*([\d.]+)\]?/i);
+                    if (scoreMatch) {
+                      const n = parseFloat(scoreMatch[1]);
+                      if (Number.isFinite(n) && n >= 0 && n <= 1) return n;
+                      if (Number.isFinite(n) && n > 1) return n / 100; // assume 0-100 scale
+                    }
+                  }
+                }
+                return undefined;
+              };
+
               // Pattern 1: File refs - [[path/file.ext]] or [[path/file.ext:line]] or [[path/file.ext:line-line]]
               // Line numbers are optional
               const fileRefRegex = /\[\[([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?::(\d+)(?:[-–](\d+))?)?\]\]/g;
@@ -818,6 +845,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                 const endLine0 = endLine1 !== undefined ? Math.max(0, endLine1 - 1) : startLine0;
                 const nodeId = findFileNodeId(resolvedPath);
 
+                const score = getScoreFromSearchSteps(stepsForMessage, resolvedPath);
                 addCodeReference({
                   filePath: resolvedPath,
                   startLine: startLine0,
@@ -826,6 +854,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                   label: 'File',
                   name: resolvedPath.split('/').pop() ?? resolvedPath,
                   source: 'ai',
+                  ...(score !== undefined && { score }),
                 });
               }
 
@@ -847,6 +876,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                 const resolvedPath = resolveFilePath(node.properties.filePath);
                 if (!resolvedPath) continue;
 
+                const score = getScoreFromSearchSteps(stepsForMessage, resolvedPath);
                 addCodeReference({
                   filePath: resolvedPath,
                   startLine: node.properties.startLine ? node.properties.startLine - 1 : undefined,
@@ -855,6 +885,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                   label: node.label,
                   name: node.properties.name,
                   source: 'ai',
+                  ...(score !== undefined && { score }),
                 });
               }
             }

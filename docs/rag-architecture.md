@@ -1,6 +1,6 @@
-# RAG Architecture (GitNexus / Lapack Lens)
+# RAG Architecture (GitNexus Browser Client)
 
-This document describes the retrieval architecture used by **Lapack Lens** to answer natural-language questions about the LAPACK (Fortran) codebase. Lapack Lens queries the **GitNexus** server via REST; GitNexus provides a symbol-level knowledge graph, hybrid search, and tools that together form the “RAG” pipeline.
+This document describes the retrieval architecture used by **GitNexus Browser Client** to answer natural-language questions about the LAPACK (Fortran) codebase. The client queries the **GitNexus** server via REST; GitNexus provides a symbol-level knowledge graph, hybrid search, and tools that together form the “RAG” pipeline.
 
 ---
 
@@ -28,10 +28,18 @@ This document describes the retrieval architecture used by **Lapack Lens** to an
 
 ## 3. Chunking approach
 
-**Approach:** GitNexus does **syntax-aware, symbol-level “chunking”**: each unit of storage and retrieval is a **code symbol** (function, subroutine, class, method, file, etc.), not a fixed-size or sliding-window text chunk.
+**Approach:** GitNexus uses **syntax-aware, symbol-level “chunking”**: each unit of storage and retrieval is a **code symbol** (function, subroutine, class, method, file, etc.), not a fixed-size or sliding-window text chunk.
 
 - **Ingestion:** The analyzer (e.g. Tree-sitter) parses the repo and creates one graph node per symbol, with `filePath`, `startLine`, `endLine`, and optional `content`.
-- **Mapping to assignment terms:** This corresponds to “syntax-aware chunking” where “chunk” = one function/class/method/module. Boundaries are defined by the AST, so there is no split in the middle of a routine or type.
+- **Mapping to assignment strategies:**
+
+| Assignment strategy      | GitNexus implementation                                      |
+|--------------------------|---------------------------------------------------------------|
+| Function-level           | One node per subroutine/function (Fortran), method, or function (other languages). |
+| Paragraph-level (COBOL)  | COBOL PARAGRAPH as natural boundary (when COBOL is supported). |
+| Hierarchical             | File → symbol: file nodes plus symbol nodes with CONTAINS/DEFINES edges. |
+| Semantic splitting       | Not used; symbol boundaries are AST-defined.                  |
+| Fixed-size + overlap     | Not used; symbol-level avoids arbitrary splits.              |
 
 **Rationale:** Symbol-level granularity gives unambiguous file/line references and allows the graph to represent CALLS, IMPORTS, and STEP_IN_PROCESS. It also avoids the “chunk boundary” problem of classic RAG where a function can be split across two chunks.
 
@@ -39,10 +47,10 @@ This document describes the retrieval architecture used by **Lapack Lens** to an
 
 ## 4. Retrieval pipeline
 
-**Query flow (Lapack Lens → GitNexus → OpenAI):**
+**Query flow (GitNexus Browser Client → GitNexus → LLM):**
 
-1. **User question** → Lapack Lens sends it to OpenAI with tool definitions (query, context, cypher, impact, wiki).
-2. **Tool calls:** The model chooses tools; Lapack Lens calls GitNexus REST:
+1. **User question** → The client sends it to the LLM with tool definitions (query, context, cypher, impact, wiki).
+2. **Tool calls:** The model chooses tools; the client calls GitNexus REST:
    - **POST /api/tools/query:** Hybrid search (BM25 + semantic) over the graph, then process grouping and ranking; returns processes, process_symbols, definitions.
    - **POST /api/tools/context:** Resolves a symbol by name/uid/file_path; returns incoming/outgoing refs, process participation, file/line.
    - **POST /api/tools/cypher:** Runs a Cypher query on the graph.
@@ -58,7 +66,7 @@ This document describes the retrieval architecture used by **Lapack Lens** to an
 ## 5. Failure modes
 
 - **No results:** Empty query or no matching symbols → tools return empty lists or “not found”; the LLM can say so or suggest rephrasing.
-- **Backend unreachable:** GitNexus down or wrong URL → REST client returns connection/error; Lapack Lens surfaces a short error (e.g. “GitNexus server unreachable”).
+- **Backend unreachable:** GitNexus down or wrong URL → REST client returns connection/error; the client surfaces a short error (e.g. “GitNexus server unreachable”).
 - **Timeouts:** Search and context use a 60s timeout; wiki uses 600s. On timeout, the client returns a message so the user knows the operation did not complete.
 - **Embeddings not loaded:** If the embedding model is not initialized (e.g. embeddings disabled or first request), semantic search is skipped and only BM25 (FTS) is used, so search still works with lower semantic recall.
 
@@ -66,9 +74,9 @@ This document describes the retrieval architecture used by **Lapack Lens** to an
 
 ## 6. Performance results
 
-Performance is measured by an automated **performance script** that simulates the chat (HTTP to GitNexus + OpenAI tool loop), runs a list of test queries (see `docs/testing-scenarios.md`), and records latency per query. The script is documented in `lapack-lens/README.md` (or the script directory) and produces a report (e.g. JSON or markdown).
+Performance is measured by an automated **performance script** that simulates the chat (HTTP to GitNexus + LLM tool loop), runs a list of test queries (see `docs/testing-scenarios.md`), and records latency per query. The script is documented in the repo (see §4.2 of the mitigation plan) and can produce a report (e.g. JSON or markdown).
 
 - **Query latency:** Target &lt;3 s end-to-end per query; actual p50/p95 or min/max are recorded in the report and can be summarized here after a run.
 - **Ingestion:** LAPACK indexing time (from Docker build or one-off `gitnexus analyze`) is recorded once and reported (e.g. “LAPACK indexed in X min”).
 
-After running the script, update this section with a short summary (e.g. “Latency p50 X.X s, p95 X.X s; ingestion X min for LAPACK”) and reference the report file.
+**Current status:** To be filled after running the performance script — see §4.2 of the mitigation plan. Run a small set of queries against the deployed app (or local backend + GitNexus Browser Client), record latency and ingestion time, then add a short summary here (e.g. “Latency p50 X.X s, p95 X.X s; ingestion X min for LAPACK”) and reference the report file if one exists.

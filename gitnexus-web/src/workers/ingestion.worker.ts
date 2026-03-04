@@ -106,33 +106,23 @@ const createHttpHybridSearch = (backendUrl: string, repo: string) => {
         return [];
       }
       const body = await response.json();
-      const data = body.results ?? body;
+      const results = body.results ?? body.data ?? [];
 
-      // Flatten process_symbols + definitions into a single ranked list
-      const symbols: any[] = (data.process_symbols ?? []).map((s: any, i: number) => ({
-        nodeId: s.id,
-        id: s.id,
-        name: s.name,
-        label: s.type,
-        filePath: s.filePath,
+      // Backend /api/search returns flat HybridSearchResult[] with score, filePath, nodeId, etc.
+      const items = (Array.isArray(results) ? results : []).map((s: any, i: number) => ({
+        nodeId: s.nodeId ?? s.id,
+        id: s.nodeId ?? s.id,
+        name: s.name ?? s.filePath?.split?.('/').pop?.(),
+        label: s.label ?? s.type ?? 'File',
+        filePath: s.filePath ?? '',
         startLine: s.startLine,
         endLine: s.endLine,
         content: s.content ?? '',
-        sources: ['bm25', 'semantic'],
-        score: 1 - (i * 0.02),
+        sources: s.sources ?? ['bm25', 'semantic'],
+        score: typeof s.score === 'number' ? s.score : Math.max(0, 1 - i * 0.02),
       }));
 
-      const defs: any[] = (data.definitions ?? []).map((d: any, i: number) => ({
-        id: d.name,
-        name: d.name,
-        label: d.type || 'File',
-        filePath: d.filePath,
-        content: '',
-        sources: ['bm25'],
-        score: 0.5 - (i * 0.02),
-      }));
-
-      return [...symbols, ...defs].slice(0, k);
+      return items.slice(0, k);
     } catch {
       return [];
     }

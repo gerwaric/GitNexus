@@ -19,12 +19,13 @@ Natural-language queries for validating Lapack Lens and the performance script. 
 
 ## Usage
 
-- **Manual / demo:** Run these in the Lapack Lens chat at https://lapack-lens.fly.dev or locally.
-- **Performance script:** The script in `lapack-lens/scripts/run_performance_tests.py` uses these (or a derived list) as the default query set.
+- **Manual / demo:** Run these queries in the GitNexus Browser Client at [https://lapack.smallcatlabs.com](https://lapack.smallcatlabs.com) or against a local backend + client.
+- **Performance script:** A minimal script that runs a fixed set of queries against the backend (and optionally the LLM loop) can be added to the repo to record latency and regenerate outcomes; see §4.2 of the mitigation plan. Until then, run scenarios manually and fill outcomes below.
+- **Backend-only latency:** Run `BACKEND_URL=https://lapack.smallcatlabs.com node scripts/performance-query-latency.mjs [--all] [--output report.json]` to measure `/api/search` latency (no LLM). Use the report to fill RAG doc §6 and optionally refine Outcomes.
 
 ## Outcomes
 
-After running the performance script or manual tests, document 1–2 sentence outcomes per scenario in the **Outcomes** section below (see §5.2 of the gap mitigation plan).
+After running the performance script or manual tests, document 1–2 sentence outcomes per scenario in the **Outcomes** table below. *To be filled after running tests — run the 10 scenarios against the deployed app or local backend and record results.*
 
 ### Outcomes (to be filled after running tests)
 

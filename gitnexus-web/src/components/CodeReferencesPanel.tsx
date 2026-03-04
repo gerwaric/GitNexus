@@ -271,6 +271,7 @@ export const CodeReferencesPanel = ({ onFocusNode }: CodeReferencesPanelProps) =
                     selectedFilePath?.endsWith('.py') ? 'python' :
                     selectedFilePath?.endsWith('.js') || selectedFilePath?.endsWith('.jsx') ? 'javascript' :
                     selectedFilePath?.endsWith('.ts') || selectedFilePath?.endsWith('.tsx') ? 'typescript' :
+                    /\.(f90?|for)$/i.test(selectedFilePath ?? '') ? 'fortran' :
                     'text'
                   }
                   style={customTheme as any}
@@ -343,6 +344,7 @@ export const CodeReferencesPanel = ({ onFocusNode }: CodeReferencesPanelProps) =
             ref.filePath.endsWith('.py') ? 'python' :
             ref.filePath.endsWith('.js') || ref.filePath.endsWith('.jsx') ? 'javascript' :
             ref.filePath.endsWith('.ts') || ref.filePath.endsWith('.tsx') ? 'typescript' :
+            /\.(f90?|for)$/i.test(ref.filePath) ? 'fortran' :
             'text';
 
           const isGlowing = glowRefId === ref.id;
@@ -375,6 +377,12 @@ export const CodeReferencesPanel = ({ onFocusNode }: CodeReferencesPanelProps) =
                         {' '}
                         • L{startDisplay}
                         {endDisplay !== startDisplay ? `–${endDisplay}` : ''}
+                      </span>
+                    )}
+                    {typeof ref.score === 'number' && (
+                      <span className="text-cyan-400/90 ml-1" title="Relevance score">
+                        {' '}
+                        • Relevance: {ref.score <= 1 ? (ref.score * 100).toFixed(0) + '%' : ref.score.toFixed(2)}
                       </span>
                     )}
                     {totalLines > 0 && <span className="text-text-muted"> • {totalLines} lines</span>}
