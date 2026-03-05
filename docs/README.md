@@ -17,7 +17,7 @@ Documentation is grouped by topic. Start with [project-introduction.md](project-
 
 | Document | Description |
 |----------|-------------|
-| [rag-architecture.md](rag-architecture.md) | Retrieval architecture for Lapack Lens: KuzuDB (graph + vectors + FTS), embedding strategy, hybrid search, tools. |
+| [rag-architecture.md](rag-architecture.md) | Retrieval architecture for GitNexus Browser Client: KuzuDB (graph + vectors + FTS), embedding strategy, hybrid search, tools. |
 | [pre-search.md](pre-search.md) | Pre-Search checklist: constraints, vector DB choice, embedding/chunking decisions, and rationale. |
 
 ---
@@ -43,7 +43,7 @@ Documentation is grouped by topic. Start with [project-introduction.md](project-
 
 | Document | Description |
 |----------|-------------|
-| [testing-scenarios.md](testing-scenarios.md) | LAPACK-tailored natural-language test queries for Lapack Lens and the performance script. |
+| [testing-scenarios.md](testing-scenarios.md) | LAPACK-tailored natural-language test queries; scenarios, usage, and outcomes table. |
 
 ---
 
@@ -75,9 +75,31 @@ Design notes and implementation plans for language support and tooling.
 
 ---
 
+## Final submission (LegacyLens G4)
+
+Submission deliverables and supporting docs for the LegacyLens G4 final. Quick index: [final-submission/summary.md](final-submission/summary.md).
+
+| Document | Description |
+|----------|-------------|
+| [final-submission/summary.md](final-submission/summary.md) | **Quick index** — each deliverable and where to find it (repo, pre-search, RAG doc, AI cost analysis, deployed app). |
+| [final-submission/final-submission-overview.md](final-submission/final-submission-overview.md) | Full checklist: submission table, RAG doc sections, supporting topics, folder contents, author TODOs. |
+| [final-submission/gap-analysis.md](final-submission/gap-analysis.md) | Gaps vs LegacyLens G4: MVP table, target codebase, RAG infrastructure, testing, query interface, code-understanding features. |
+| [final-submission/mitigation-plan.md](final-submission/mitigation-plan.md) | Step-by-step plan executed to close gaps. |
+| [final-submission/ai-cost-analysis.md](final-submission/ai-cost-analysis.md) | AI cost analysis: dev/test costs (Gemini), production projections (100/1K/10K/100K users). |
+| [final-submission/test-queries.md](final-submission/test-queries.md) | LAPACK test queries for eval; script: `scripts/lapack-test-queries-performance.mjs`. |
+| [final-submission/eval-test-queries-feature.md](final-submission/eval-test-queries-feature.md) | Run test queries UI: goals, architecture, behavior. |
+| [final-submission/eval-test-queries-implementation-plan.md](final-submission/eval-test-queries-implementation-plan.md) | Implementation plan for the Run test queries UI. |
+| [final-submission/eval-test-queries-execute-prompt.md](final-submission/eval-test-queries-execute-prompt.md) | Prompt to run the eval-test-queries implementation plan in a new chat. |
+| [final-submission/mitigation-plan-prompt.md](final-submission/mitigation-plan-prompt.md) | Prompt used to generate the mitigation plan. |
+| [final-submission/execute-mitigation-plan-prompt.md](final-submission/execute-mitigation-plan-prompt.md) | Prompt used to have an agent execute the mitigation plan. |
+
+Reports (JSON) in the same folder: `performance-report.json`, `cost-report.json`, `scenario-report.json`, `gitnexus-eval-report.json`.
+
+---
+
 ## Legacy Lens / gap analysis
 
-Gap between current GitNexus/Lapack Lens and the LegacyLens submission requirements, plus mitigation plans.
+Earlier gap analysis and mitigation docs (legacy-lens folder). **For the G4 submission**, see [Final submission](#final-submission-legacylens-g4) above (final-submission/).
 
 | Document | Description |
 |----------|-------------|
