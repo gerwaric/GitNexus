@@ -89,4 +89,19 @@ Performance is measured by an automated **performance script** that simulates th
 | gnucobol   | Production  | COBOL    |   405 | 539,787 |  5,969 |  7,340 |      946 |   3.5s |  4.1s |     210.5s | [OCamlPro/gnucobol](https://github.com/OCamlPro/gnucobol) |
 | CobolCraft | Production  | COBOL    |   292 |  31,671 |   372  |    364 |        2 |   1.3s |  1.9s |      19.1s | [meyfa/CobolCraft](https://github.com/meyfa/CobolCraft) |
 
-**Current status:** To be filled after running the performance script — see §4.2 of the mitigation plan. Run a small set of queries against the deployed app (or local backend + GitNexus Browser Client), record latency and ingestion time, then add a short summary here (e.g. “Latency p50 X.X s, p95 X.X s; ingestion X min for LAPACK”) and reference the report file if one exists.
+**Backend search latency:**
+
+The latency of (POST /api/search, 10 scenarios from `docs/testing-scenarios.md`) was measured against the deployed backend (https://gitnexus.smallcatlabs.com, repo lapack). **Min 0.07 s, max 0.28 s, avg 0.11 s**; all 10 queries succeeded. Report: `docs/final-submission/performance-report.json`. End-to-end latency (with LLM in the browser) is higher and depends on model and tool turns; the <3 s target applies to the full user-perceived response. Ingestion timing for LAPACK is in the table above.
+
+| # | Query | Latency (ms) | Success |
+|---|-------|--------------|---------|
+| 1 | Where is the main entry point of this program? | 276 | ✓ |
+| 2 | What does the routine dgemm do? | 120 | ✓ |
+| 3 | What are the dependencies of the module or routine that computes eigenvalues? | 100 | ✓ |
+| 4 | Where is the Cholesky factorization implemented? | 76 | ✓ |
+| 5 | Find all file I/O operations in the codebase. | 66 | ✓ |
+| 6 | Show me error handling patterns in this codebase. | 85 | ✓ |
+| 7 | What BLAS routines does LAPACK call for matrix multiplication? | 124 | ✓ |
+| 8 | Where is the singular value decomposition (SVD) implemented? | 75 | ✓ |
+| 9 | What would be affected if I change routine dgetrf? | 90 | ✓ |
+| 10 | Explain what the dsyev subroutine does and where it is defined. | 90 | ✓ |

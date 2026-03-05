@@ -1,0 +1,73 @@
+{
+    "backend": "https://gitnexus.smallcatlabs.com",
+    "repo": "lapack",
+    "queries_run": 10,
+    "success_count": 10,
+    "latency_s": {
+      "min": 0.06569,
+      "max": 0.27642,
+      "avg": 0.11020300000000001
+    },
+    "results": [
+      {
+        "query": "Where is the main entry point of this program?",
+        "latencyMs": 276.42,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "What does the routine dgemm do?",
+        "latencyMs": 119.51,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "What are the dependencies of the module or routine that computes eigenvalues?",
+        "latencyMs": 99.55,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "Where is the Cholesky factorization implemented?",
+        "latencyMs": 76.35,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "Find all file I/O operations in the codebase.",
+        "latencyMs": 65.69,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "Show me error handling patterns in this codebase.",
+        "latencyMs": 84.58,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "What BLAS routines does LAPACK call for matrix multiplication?",
+        "latencyMs": 124.38,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "Where is the singular value decomposition (SVD) implemented?",
+        "latencyMs": 74.7,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "What would be affected if I change routine dgetrf?",
+        "latencyMs": 90.4,
+        "success": true,
+        "error": null
+      },
+      {
+        "query": "Explain what the dsyev subroutine does and where it is defined.",
+        "latencyMs": 90.45,
+        "success": true,
+        "error": null
+      }
+    ]
+  }
