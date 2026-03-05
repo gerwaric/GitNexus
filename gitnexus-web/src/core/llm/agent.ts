@@ -253,6 +253,7 @@ const extractInstanceName = (endpoint: string): string => {
 
 /**
  * Create a Graph RAG agent
+ * @param preModelHook - Optional LangGraph hook run before each LLM turn (state, config) => state. Used e.g. to delay between turns during eval.
  */
 export const createGraphRAGAgent = (
   config: ProviderConfig,
@@ -263,7 +264,8 @@ export const createGraphRAGAgent = (
   isEmbeddingReady: () => boolean,
   isBM25Ready: () => boolean,
   fileContents: Map<string, string>,
-  codebaseContext?: CodebaseContext
+  codebaseContext?: CodebaseContext,
+  preModelHook?: (state: any, config: any) => Promise<any>
 ) => {
   const model = createChatModel(config);
   const tools = createGraphRAGTools(
@@ -290,6 +292,7 @@ export const createGraphRAGAgent = (
     llm: model as any,
     tools: tools as any,
     messageModifier: new SystemMessage(systemPrompt) as any,
+    ...(preModelHook != null && { preModelHook }),
   });
   
   return agent;

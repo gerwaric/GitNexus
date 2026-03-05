@@ -82,6 +82,18 @@ The script calls `POST /api/search` for each query, records latency and success/
 
 ---
 
+## Full agent run (optional)
+
+To run the same 17 queries through the **Nexus AI agent** (tool calls + LLM synthesis) and download the full responses, use the **Eval Test Queries UI** in the GitNexus Browser Client:
+
+- **Feature:** [eval-test-queries-feature.md](./eval-test-queries-feature.md)
+- **Implementation plan:** [eval-test-queries-implementation-plan.md](./eval-test-queries-implementation-plan.md)
+- **Execute in a new chat:** [eval-test-queries-execute-prompt.md](./eval-test-queries-execute-prompt.md)
+
+After implementation, open the app → connect to backend and configure LLM → use the "Test queries" section → Run test queries → Download results.
+
+---
+
 ## Outcomes (to be filled after runs)
 
 After running the script, document 1–2 sentence outcomes per feature in the table below.

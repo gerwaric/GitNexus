@@ -8,6 +8,7 @@ import { ToolCallCard } from './ToolCallCard';
 import { isProviderConfigured } from '../core/llm/settings-service';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { ProcessesPanel } from './ProcessesPanel';
+import { EvalTestQueriesPanel } from './EvalTestQueriesPanel';
 export const RightPanel = () => {
   const {
     isRightPanelOpen,
@@ -441,6 +442,7 @@ export const RightPanel = () => {
               </div>
             )}
           </div>
+          <EvalTestQueriesPanel />
         </div>
       )}
     </aside>

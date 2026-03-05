@@ -64,6 +64,12 @@ All of the following are in **[docs/rag-architecture.md](../rag-architecture.md)
 | **execute-mitigation-plan-prompt.md** | Prompt used to have an agent execute the mitigation plan. |
 | **ai-cost-analysis.md** | AI Cost Analysis deliverable (structure + placeholders). |
 | **test-queries.md** | LAPACK test queries (4 features + 1 expected-to-fail); script: **scripts/lapack-test-queries-performance.mjs**. |
+| **eval-test-queries-feature.md** | Eval Test Queries UI — feature doc (goals, architecture, behavior). |
+| **eval-test-queries-implementation-plan.md** | Step-by-step implementation plan for the Run test queries UI. |
+| **eval-test-queries-execute-prompt.md** | Prompt to run the implementation plan in a new chat session. |
+| **gitnexus-eval-report.json** | Snapshot of Run test queries output (pre–preModelHook) used for final submission; see note below. |
+
+**Eval report (final submission):** **gitnexus-eval-report.json** in this folder is the snapshot used for the final submission. It was captured *before* implementing the preModelHook (per-turn delay) approach, so it includes some edge cases (e.g. occasional 429s, variable latency) that support discussion in the submission; post–preModelHook runs are more stable and generally won’t show those edge cases.
 
 ---
 

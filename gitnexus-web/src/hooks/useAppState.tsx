@@ -168,6 +168,9 @@ interface AppState {
   stopChatResponse: () => void;
   clearChat: () => void;
 
+  /** Run a single query through the agent for eval (non-streaming). Returns content, latencyMs, optional error. */
+  runQueryForEval: (query: string) => Promise<{ content: string; latencyMs: number; error?: string }>;
+
   // Code References Panel
   codeReferences: CodeReference[];
   isCodePanelOpen: boolean;
@@ -1061,6 +1064,14 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     setAgentError(null);
   }, []);
 
+  const runQueryForEval = useCallback(async (query: string): Promise<{ content: string; latencyMs: number; error?: string }> => {
+    const api = apiRef.current;
+    if (!api) {
+      return Promise.reject(new Error('Worker not initialized'));
+    }
+    return api.runQueryForEval(query);
+  }, []);
+
   // Switch to a different repo on the connected server
   const switchRepo = useCallback(async (repoName: string) => {
     if (!serverBaseUrl) return;
@@ -1261,6 +1272,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     sendChatMessage,
     stopChatResponse,
     clearChat,
+    runQueryForEval,
     // Code References Panel
     codeReferences,
     isCodePanelOpen,

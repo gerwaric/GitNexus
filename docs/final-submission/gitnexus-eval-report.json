@@ -1,0 +1,148 @@
+{
+  "ranAt": "2026-03-05T02:52:33.317Z",
+  "repoName": "lapack",
+  "backendUrl": "http://localhost:4747/api",
+  "results": [
+    {
+      "id": "ce-1",
+      "query": "What does the routine dgemm do?",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "content": "The `dgemm` routine, exposed through the `cblas_dgemm` C interface [[CBLAS/src/cblas_dgemm.c:10-110]], performs a general matrix-matrix multiplication. It computes the operation:\n\n`C = alpha*op(A)*op(B) + beta*C`\n\nWhere:\n*   `alpha` and `beta` are scalar values.\n*   `A`, `B`, and `C` are matrices.\n*   `op(X)` can be `X` (no transpose), `X**T` (transpose), or `X**H` (conjugate transpose), determined by `TransA` and `TransB` parameters [[CBLAS/src/cblas_dgemm.c:40-69]].\n\nThe routine handles both column-major and row-major storage layouts for the matrices, specified by the `layout` parameter [[CBLAS/src/cblas_dgemm.c:37]].\n\n**Parameters:**\n*   `layout`: Specifies whether matrices are row-major or column-major.\n*   `TransA`: Specifies the form of `op(A)`.\n*   `TransB`: Specifies the form of `op(B)`.\n*   `M`: Number of rows of `op(A)` and `C`.\n*   `N`: Number of columns of `op(B)` and `C`.\n*   `K`: Number of columns of `op(A)` and rows of `op(B)`.\n*   `alpha`: Scalar multiplier for `op(A)*op(B)`.\n*   `A`: Pointer to matrix A.\n*   `lda`: Leading dimension of A.\n*   `B`: Pointer to matrix B.\n*   `ldb`: Leading dimension of B.\n*   `beta`: Scalar multiplier for C.\n*   `C`: Pointer to matrix C.\n*   `ldc`: Leading dimension of C.\n\n**TL;DR**\nThe `dgemm` routine is a C interface to a Fortran 77 function that performs double-precision general matrix-matrix multiplication, supporting various transpose operations and matrix storage layouts.",
+      "latencyMs": 7388.674999952316
+    },
+    {
+      "id": "ce-2",
+      "query": "Explain what the dsyev subroutine does and where it is defined.",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "content": "The `DSYEV` subroutine is a LAPACK routine designed to compute all eigenvalues and, optionally, eigenvectors of a real symmetric matrix.\n\n### Functionality\nThe subroutine takes the following parameters:\n*   `JOBZ`: Specifies whether to compute eigenvalues only ('N') or eigenvalues and eigenvectors ('V').\n*   `UPLO`: Indicates whether the upper ('U') or lower ('L') triangular part of the symmetric matrix `A` is stored.\n*   `N`: The order of the matrix `A`.\n*   `A`: On input, the symmetric matrix. On output, if eigenvectors are requested, it contains the orthonormal eigenvectors.\n*   `LDA`: The leading dimension of the array `A`.\n*   `W`: On output, contains the eigenvalues in ascending order.\n*   `WORK`: A workspace array.\n*   `LWORK`: The dimension of the `WORK` array.\n*   `INFO`: An integer output code indicating success (0), illegal argument (<0), or convergence failure (>0).\n\n### Definition and Internal Calls\nThe `DSYEV` subroutine is defined in the file `SRC/dsyev.f` [[SRC/dsyev.f:40-286]].\n\nIt internally calls several other LAPACK routines to perform its computations, including:\n*   `LSAME`\n*   `ILAENV`\n*   `DLAMCH`\n*   `DLANSY`\n*   `DLASCL`\n*   `DSYTRD`\n*   `DSTERF`\n*   `DORGTR`\n*   `DSTEQR`\n*   `DSCAL`\n*   `XERBLA`\n\nThese internal calls are explicitly listed in the documentation within the `dsyev.f` file [[SRC/dsyev.f:110-113]].\n\n### TL;DR\nThe `DSYEV` subroutine, defined in `SRC/dsyev.f`, computes eigenvalues and optionally eigenvectors of a real symmetric matrix, utilizing several other LAPACK routines for its operations.",
+      "latencyMs": 10356.649999976158
+    },
+    {
+      "id": "ce-3",
+      "query": "What does the routine dgetrf do?",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "content": "The `DGETRF` routine computes an LU factorization of a general M-by-N matrix A using partial pivoting with row interchanges [[SRC/dgetrf.f:30-31]].\n\nThe factorization takes the form:\n`A = P * L * U` [[SRC/dgetrf.f:33-34]]\n\nWhere:\n*   `P` is a permutation matrix [[SRC/dgetrf.f:35]]\n*   `L` is lower triangular with unit diagonal elements (lower trapezoidal if m > n) [[SRC/dgetrf.f:35-36]]\n*   `U` is upper triangular (upper trapezoidal if m < n) [[SRC/dgetrf.f:36-37]]\n\nThis routine is the right-looking Level 3 BLAS version of the algorithm [[SRC/dgetrf.f:39]].\n\n**Arguments:**\n*   `M` (INTEGER, input): The number of rows of matrix A. M >= 0. [[SRC/dgetrf.f:44-46]]\n*   `N` (INTEGER, input): The number of columns of matrix A. N >= 0. [[SRC/dgetrf.f:49-51]]\n*   `A` (DOUBLE PRECISION array, dimension (LDA,N), input/output):\n    *   On entry: The M-by-N matrix to be factored.\n    *   On exit: The factors L and U from the factorization A = P*L*U; the unit diagonal elements of L are not stored. [[SRC/dgetrf.f:54-58]]\n*   `LDA` (INTEGER, input): The leading dimension of array A. LDA >= max(1,M). [[SRC/dgetrf.f:61-63]]\n*   `IPIV` (INTEGER array, dimension (min(M,N)), output): The pivot indices; for 1 <= i <= min(M,N), row i of the matrix was interchanged with row IPIV(i). [[SRC/dgetrf.f:66-69]]\n*   `INFO` (INTEGER, output):\n    *   `= 0`: Successful exit.\n    *   `< 0`: If INFO = -i, the i-th argument had an illegal value.\n    *   `> 0`: If INFO = i, U(i,i) is exactly zero. The factorization has been completed, but the factor U is exactly singular, and division by zero will occur if it is used to solve a system of equations. [[SRC/dgetrf.f:72-79]]\n\n**Internal Calls (validated by reading the source code):**\nThe routine internally calls `DGETRF2`, `DLASWP`, `DTRSM`, `DGEMM`, `XERBLA`, and `ILAENV` [[SRC/dgetrf.f:110-114]].\n\n**TL;DR**\n`DGETRF` performs an LU factorization of a general matrix A (A = P*L*U) using partial pivoting. It returns the factored matrix, pivot indices, and an info code indicating success or singularity.",
+      "latencyMs": 9180.975000023842
+    },
+    {
+      "id": "ce-4",
+      "query": "Explain what dpotrf does and how it relates to Cholesky factorization.",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "content": "The `dpotrf` routine computes the Cholesky factorization of a real symmetric positive definite matrix `A` [[SRC/dpotrf.f:29-30]].\n\n### Cholesky Factorization by `dpotrf`\n\nThe factorization takes one of two forms, depending on the `UPLO` parameter:\n*   **Upper triangular form**: `A = U**T * U`, where `U` is an upper triangular matrix. This form is used if `UPLO = 'U'` [[SRC/dpotrf.f:31-32]].\n*   **Lower triangular form**: `A = L * L**T`, where `L` is a lower triangular matrix. This form is used if `UPLO = 'L'` [[SRC/dpotrf.f:32-33]].\n\n`dpotrf` is the blocked version of the Cholesky factorization algorithm, which means it processes the matrix in blocks to leverage Level 3 BLAS (Basic Linear Algebra Subprograms) for improved performance [[SRC/dpotrf.f:35]]. For cases where blocking is not efficient (e.g., small matrices), it calls the unblocked, recursive routine `dpotrf2` [[SRC/dpotrf.f:100-102]].\n\n### `dpotrf2` (Recursive Cholesky Factorization)\n\nThe `dpotrf2` routine also computes the Cholesky factorization of a real symmetric positive definite matrix `A` [[SRC/dpotrf2.f:29-30]]. It implements a recursive algorithm that divides the matrix into four submatrices, recursively factors the diagonal blocks, and updates the off-diagonal blocks [[SRC/dpotrf2.f:38-45]].\n\n### TL;DR\n\n`dpotrf` is a LAPACK routine that performs Cholesky factorization on a real symmetric positive definite matrix. It decomposes the matrix `A` into either `U**T * U` or `L * L**T`, where `U` and `L` are the Cholesky factors. It uses a blocked algorithm for efficiency, delegating to the recursive `dpotrf2` routine for unblocked computations.",
+      "latencyMs": 10188.599999904633
+    },
+    {
+      "id": "dm-1",
+      "query": "What are the dependencies of the module or routine that computes eigenvalues?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "content": "The `SSTEMR` routine, which computes selected eigenvalues and optionally eigenvectors of a real symmetric tridiagonal matrix, relies on several underlying algorithms and, by extension, other routines that implement these algorithms. While direct call graph tracing for Fortran routines is not fully available with the current tools, based on the documentation of `SSTEMR` [[SRC/sstemr.f]] and common LAPACK practices, the following types of routines are likely dependencies:\n\n**Inferred Dependencies of SSTEMR:**\n\n| Routine Type / Algorithm | Likely Files (Validated) | Purpose (Inferred from SSTEMR documentation) |\n| :----------------------- | :----------------------- | :------------------------------------------- |\n| **QR Factorization**     | `ssteqr.f` [[SRC/ssteqr.f]], `dsteqr.f` [[SRC/dsteqr.f]], `spteqr.f` [[SRC/spteqr.f]], `dpteqr.f` [[SRC/dpteqr.f]] | Used for computing eigenvalues, particularly for tridiagonal matrices. `SSTEMR` mentions the \"dqds algorithm\" which is related to QR factorization. |\n| **Divide and Conquer**   | `slaed1.f` [[SRC/slaed1.f]], `dlaed1.f` [[SRC/dlaed1.f]], `slaed7.f` [[SRC/slaed7.f]], `dlaed7.f` [[SRC/dlaed7.f]] | LAPACK auxiliary routines often used in divide-and-conquer algorithms for eigenvalue problems. `SSTEMR` mentions handling clusters of close eigenvalues, which is a scenario where divide-and-conquer methods are effective. |\n| **Bisection**            | `slarrd.f` [[SRC/slarrd.f]], `dlarrd.f` [[SRC/dlarrd.f]] | Routines for finding eigenvalues by bisection, which `SSTEMR` explicitly states it uses. |\n| **Error Handling**       | `xerbla.f` [[SRC/xerbla.f]] (inferred) | Standard LAPACK error reporting routine, typically called by most LAPACK routines for error conditions. |\n\n**Explanation:**\n\nThe `SSTEMR` routine's documentation indicates it uses a combination of bisection and the dqds algorithm for eigenvalue computation, along with L D L^T factorizations and rank-revealing twisted factorizations for eigenvectors. The identified files correspond to routines that implement these core numerical linear algebra operations, making them highly probable dependencies.\n\n**TL;DR**\nThe `SSTEMR` routine for computing eigenvalues likely depends on routines for QR factorization (e.g., `ssteqr.f`), divide-and-conquer algorithms (e.g., `slaed1.f`), and bisection methods (e.g., `slarrd.f`), as inferred from its internal documentation and common LAPACK practices.",
+      "latencyMs": 27238.705000042915
+    },
+    {
+      "id": "dm-2",
+      "query": "What BLAS routines does LAPACK call for matrix multiplication?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "content": "LAPACK routines, including those exposed through the LAPACKE C interface, extensively call BLAS (Basic Linear Algebra Subprograms) routines for fundamental matrix operations. For matrix multiplication, the primary BLAS routine called is `GEMM` (General Matrix Multiply).\n\nThere are different versions of `GEMM` for various data types:\n*   `SGEMM`: Single-precision real matrix multiplication.\n*   `DGEMM`: Double-precision real matrix multiplication.\n*   `CGEMM`: Single-precision complex matrix multiplication.\n*   `ZGEMM`: Double-precision complex matrix multiplication.\n\nWhile direct `CALLS` or `IMPORTS` relationships from `LAPACKE/src` to `BLAS/SRC` or `CBLAS/src` were not explicitly found by the code analysis tools, the presence of `cblas_*.c` files in `CBLAS/src` (which are C interfaces to the Fortran BLAS routines) and the nature of LAPACK as a higher-level linear algebra library built on BLAS strongly indicate this dependency. The graph's current representation might not fully capture these low-level C/Fortran interoperability patterns.\n\n**TL;DR:** LAPACK routines call BLAS routines for matrix multiplication, primarily `SGEMM`, `DGEMM`, `CGEMM`, and `ZGEMM`, depending on the data type. The code analysis tools did not directly identify these calls within the provided graph, likely due to the complexities of C/Fortran interoperability and the graph's current dependency extraction capabilities for this language combination.",
+      "latencyMs": 31891.304999947548
+    },
+    {
+      "id": "dm-3",
+      "query": "What does the dgesvd routine call internally?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "content": "The `dgesvd` routine, as defined in `SRC/dgesvd.f`, internally calls the following external subroutines and functions:\n\n### External Subroutines Called by `DGESVD` [[SRC/dgesvd.f:225-230]]\n| Subroutine |\n|------------|\n| `DBDSQR`   |\n| `DGEBRD`   |\n| `DGELQF`   |\n| `DGEMM`    |\n| `DGEQRF`   |\n| `DLACPY`   |\n| `DLASCL`   |\n| `DLASET`   |\n| `DORGBR`   |\n| `DORGLQ`   |\n| `DORGQR`   |\n| `DORMBR`   |\n| `XERBLA`   |\n\n### External Functions Called by `DGESVD` [[SRC/dgesvd.f:233-235]]\n| Function |\n|----------|\n| `LSAME`  |\n| `ILAENV` |\n| `DLAMCH` |\n| `DLANGE` |\n\n**TL;DR**\nThe `dgesvd` routine calls a variety of LAPACK and BLAS subroutines and functions for numerical linear algebra operations, including bidiagonalization (`DGEBRD`), QR/LQ factorizations (`DGEQRF`, `DGELQF`), matrix multiplication (`DGEMM`), and singular value computation (`DBDSQR`). It also uses utility functions for character comparison (`LSAME`), environment queries (`ILAENV`), machine constants (`DLAMCH`), and matrix norm calculations (`DLANGE`).",
+      "latencyMs": 14368.865000009537
+    },
+    {
+      "id": "dm-4",
+      "query": "What routines does dgetrs depend on?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "content": "The `dgetrs` routine, along with its C interfaces `LAPACKE_dgetrs` and `LAPACKE_dgetrs_work`, depends on several other routines for its functionality, error handling, and data manipulation.\n\n### Dependencies of `dgetrs` (Fortran routine)\n\nThe Fortran routine `dgetrs` [[SRC/dgetrs.f]] directly calls the following LAPACK and BLAS routines:\n\n*   **`LSAME`**: A utility function for character comparison [[SRC/dgetrs.f:69]].\n*   **`DLASWP`**: Performs row interchanges on a matrix [[SRC/dgetrs.f:70]].\n*   **`DTRSM`**: Solves a triangular system of equations with multiple right-hand sides [[SRC/dgetrs.f:70]].\n*   **`XERBLA`**: LAPACK error handler routine [[SRC/dgetrs.f:70]].\n\n### Dependencies of `LAPACKE_dgetrs` (High-level C interface)\n\nThe high-level C interface `LAPACKE_dgetrs` [[LAPACKE/src/lapacke_dgetrs.c]] depends on:\n\n*   **`LAPACKE_dgetrs_work`**: The middle-level C interface, which it calls to perform the actual computation [[LAPACKE/src/lapacke_dgetrs.c:53]].\n*   **`LAPACKE_xerbla`**: For error handling related to invalid input parameters [[LAPACKE/src/lapacke_dgetrs.c:40]].\n*   **`LAPACKE_dge_nancheck`**: Optionally checks input matrices for NaN values before computation [[LAPACKE/src/lapacke_dgetrs.c:44], [LAPACKE/src/lapacke_dgetrs.c:47]].\n\n### Dependencies of `LAPACKE_dgetrs_work` (Middle-level C interface)\n\nThe middle-level C interface `LAPACKE_dgetrs_work` [[LAPACKE/src/lapacke_dgetrs_work.c]] serves as a wrapper for the Fortran `dgetrs` routine and handles matrix layout conversions:\n\n*   **`LAPACK_dgetrs`**: The underlying Fortran routine `dgetrs` is called for both column-major and row-major matrix layouts [[LAPACKE/src/lapacke_dgetrs_work.c:50], [LAPACKE/src/lapacke_dgetrs_work.c:75]].\n*   **`LAPACKE_xerbla`**: For error handling, particularly for issues with matrix dimensions or memory allocation [[LAPACKE/src/lapacke_dgetrs_work.c:55], [LAPACKE/src/lapacke_dgetrs_work.c:60], [LAPACKE/src/lapacke_dgetrs_work.c:86]].\n*   **`LAPACKE_dge_trans`**: Used to transpose matrices when converting between row-major and column-major layouts [[LAPACKE/src/lapacke_dgetrs_work.c:72], [LAPACKE/src/lapacke_dgetrs_work.c:79]].\n*   **`LAPACKE_malloc`** and **`LAPACKE_free`**: For dynamic memory allocation and deallocation of temporary arrays used during matrix transposition [[LAPACKE/src/lapacke_dgetrs_work.c:64], [LAPACKE/src/lapacke_dgetrs_work.c:67], [LAPACKE/src/lapacke_dgetrs_work.c:82], [LAPACKE/src/lapacke_dgetrs_work.c:83]].\n\n### Dependency Diagram\n\n```mermaid\ngraph TD\n    A[LAPACKE_dgetrs] --> B[LAPACKE_dgetrs_work]\n    A --> C[LAPACKE_xerbla]\n    A --> D[LAPACKE_dge_nancheck]\n    B --> E[LAPACK_dgetrs (Fortran)]\n    B --> C\n    B --> F[LAPACKE_dge_trans]\n    B --> G[LAPACKE_malloc]\n    B --> H[LAPACKE_free]\n    E --> I[LSAME]\n    E --> J[DLASWP]\n    E --> K[DTRSM]\n    E --> L[XERBLA]\n```\n\nTL;DR\nThe `dgetrs` routine (Fortran) depends on `LSAME`, `DLASWP`, `DTRSM`, and `XERBLA`. Its C interfaces, `LAPACKE_dgetrs` and `LAPACKE_dgetrs_work`, further depend on `LAPACKE_xerbla`, `LAPACKE_dge_nancheck`, `LAPACKE_dge_trans`, and memory management functions (`LAPACKE_malloc`, `LAPACKE_free`), with `LAPACKE_dgetrs` calling `LAPACKE_dgetrs_work`, which in turn calls the Fortran `dgetrs`.",
+      "latencyMs": 19118.53499996662
+    },
+    {
+      "id": "ia-1",
+      "query": "What would be affected if I change routine dgetrf?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "content": "If you change the `dgetrf` routine in `SRC/dgetrf.f`, the following components would be affected:\n\n### Direct Dependencies\n\nThe graph analysis did not identify direct code-level dependencies (CALLS, IMPORTS, EXTENDS, IMPLEMENTS) on `SRC/dgetrf.f`. However, textual analysis and code review reveal the following:\n\n*   **LAPACKE C Interfaces**: The C interfaces `lapacke_dgetrf.c` and `lapacke_dgetrf_work.c` are designed to provide a high-level and middle-level C interface to the Fortran `dgetrf` function. `lapacke_dgetrf.c` calls `LAPACKE_dgetrf_work`, which in turn calls the underlying `LAPACK_dgetrf` Fortran routine. Therefore, any changes to `SRC/dgetrf.f` would directly impact the behavior of these C interfaces.\n    *   [[LAPACKE/src/lapacke_dgetrf.c]]\n    *   [[LAPACKE/src/lapacke_dgetrf_work.c]]\n\n### Indirect Dependencies and Related Files\n\n*   **Build System**: The `Makefile`s in the project explicitly reference `dgetrf.f` for compilation. Changes to the routine might require updates to the build configuration.\n    *   [[SRC/VARIANTS/Makefile]]\n    *   [[Makefile]]\n*   **Variant Implementations**: There are specialized or alternative implementations of `dgetrf.f` located in the `SRC/VARIANTS/lu/` directory. While not directly called by the main `dgetrf.f`, these variants are related to the LU factorization process and may need to be reviewed or updated if the core `dgetrf` routine's behavior changes.\n    *   [[SRC/VARIANTS/lu/CR/dgetrf.f]]\n    *   [[SRC/VARIANTS/lu/LL/dgetrf.f]]\n    *   [[SRC/VARIANTS/lu/REC/dgetrf.f]]\n\n### Impact Summary\n\n```mermaid\ngraph TD\n    A[SRC/dgetrf.f] --> B[\"LAPACKE/src/lapacke_dgetrf_work.c\"]\n    B --> C[\"LAPACKE/src/lapacke_dgetrf.c\"]\n    A --> D[\"SRC/VARIANTS/Makefile\"]\n    A --> E[\"Makefile\"]\n    A -- Potential Review --> F[\"SRC/VARIANTS/lu/CR/dgetrf.f\"]\n    A -- Potential Review --> G[\"SRC/VARIANTS/lu/LL/dgetrf.f\"]\n    A -- Potential Review --> H[\"SRC/VARIANTS/lu/REC/dgetrf.f\"]\n```\n\n**TL;DR**: Changing `SRC/dgetrf.f` will directly affect the LAPACKE C interfaces (`lapacke_dgetrf.c`, `lapacke_dgetrf_work.c`) and the build system (Makefiles). It may also necessitate a review of related variant implementations of `dgetrf.f`.",
+      "latencyMs": 16092.975000023842
+    },
+    {
+      "id": "ia-2",
+      "query": "What would break if I modify dpotrf?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "content": "",
+      "latencyMs": 0,
+      "error": "Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the \"recursionLimit\" config key.\n\nTroubleshooting URL: https://docs.langchain.com/oss/javascript/langgraph/GRAPH_RECURSION_LIMIT/\n"
+    },
+    {
+      "id": "ia-3",
+      "query": "What depends on the SVD routine dgesvd?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "content": "",
+      "latencyMs": 0,
+      "error": "Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the \"recursionLimit\" config key.\n\nTroubleshooting URL: https://docs.langchain.com/oss/javascript/langgraph/GRAPH_RECURSION_LIMIT/\n"
+    },
+    {
+      "id": "ia-4",
+      "query": "Who calls dgetrs?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "content": "",
+      "latencyMs": 0,
+      "error": "Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the \"recursionLimit\" config key.\n\nTroubleshooting URL: https://docs.langchain.com/oss/javascript/langgraph/GRAPH_RECURSION_LIMIT/\n"
+    },
+    {
+      "id": "pd-1",
+      "query": "Show me error handling patterns in this codebase.",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "content": "",
+      "latencyMs": 0,
+      "error": "Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the \"recursionLimit\" config key.\n\nTroubleshooting URL: https://docs.langchain.com/oss/javascript/langgraph/GRAPH_RECURSION_LIMIT/\n"
+    },
+    {
+      "id": "pd-2",
+      "query": "Where does LAPACK check INFO before continuing?",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "content": "LAPACK checks the `INFO` parameter in its C interface routines before calling the `API_SUFFIX(LAPACKE_xerbla)` error handler. These checks occur in several scenarios:\n\n*   **Input parameter validation:** Parameters are checked for validity before calling the underlying Fortran routine. If an input parameter is invalid, `info` is set to a negative value, and `API_SUFFIX(LAPACKE_xerbla)` is invoked.\n    *   Example: `if( lda < n ) { info = -5; API_SUFFIX(LAPACKE_xerbla)( \"LAPACKE_cpstrf_work\", info ); return info; }` [[LAPACKE/src/lapacke_cpstrf_work.c:60-64]]\n\n*   **Memory allocation failures:** If memory allocation fails, `info` is set to a specific error code, and `API_SUFFIX(LAPACKE_xerbla)` is called.\n    *   Example: `if( a_t == NULL ) { info = LAPACK_TRANSPOSE_MEMORY_ERROR; goto exit_level_0; }` [[LAPACKE/src/lapacke_cpstrf_work.c:70-72]]\n    *   The error is then handled at the `exit_level_0` label: `if( info == LAPACK_TRANSPOSE_MEMORY_ERROR ) { API_SUFFIX(LAPACKE_xerbla)( \"LAPACKE_cpstrf_work\", info ); }` [[LAPACKE/src/lapacke_cpstrf_work.c:76-78]]\n\n*   **Invalid matrix layout:** The `matrix_layout` parameter is checked for valid values.\n    *   Example: `else { info = -1; API_SUFFIX(LAPACKE_xerbla)( \"LAPACKE_cpstrf_work\", info ); }` [[LAPACKE/src/lapacke_cpstrf_work.c:80-82]]\n\n*   **Return value from underlying Fortran routine:** After the Fortran routine executes, the `info` value returned by it is checked. If `info < 0`, it indicates an illegal argument to the Fortran routine, and the `info` value is adjusted.\n    *   Example: `LAPACK_cpstrf( &uplo, &n, a, &lda, piv, rank, &tol, work, &info ); if( info < 0 ) { info = info - 1; }` [[LAPACKE/src/lapacke_cpstrf_work.c:55-57]]\n\n**TL;DR**\nLAPACK checks the `INFO` parameter in its C interface routines (e.g., `LAPACKE/src/lapacke_cpstrf_work.c`) for invalid input parameters, memory allocation failures, and invalid matrix layouts. When an error is detected, `info` is set to a negative value (or a specific error code), and the `API_SUFFIX(LAPACKE_xerbla)` error handler is invoked. The `info` value returned by the underlying Fortran routine is also checked and adjusted if it's negative.",
+      "latencyMs": 31357.550000071526
+    },
+    {
+      "id": "pd-3",
+      "query": "Find routines that allocate workspace with LWORK.",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "content": "",
+      "latencyMs": 0,
+      "error": "Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the \"recursionLimit\" config key.\n\nTroubleshooting URL: https://docs.langchain.com/oss/javascript/langgraph/GRAPH_RECURSION_LIMIT/\n"
+    },
+    {
+      "id": "pd-4",
+      "query": "Where are Householder reflectors used?",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "content": "Householder reflectors are extensively used in the LAPACK library for performing orthogonal transformations and matrix factorizations. They are a fundamental tool in numerical linear algebra for introducing zeros into matrices in a stable manner.\n\nBased on the analysis of `SRC/cunhr_col.f` [[SRC/cunhr_col.f]] and `SRC/dlatrz.f` [[SRC/dlatrz.f]], Householder reflectors are used in the following contexts:\n\n### 1. Householder Reconstruction (HR)\n- **Purpose:** To reconstruct Householder vectors from an input orthonormal matrix.\n- **Mechanism:** The `CUNHR_COL` routine (and its single, double, and double complex counterparts) takes an orthonormal matrix `Q_in` and reconstructs a set of Householder vectors `V(i)` and block reflectors `T`. These implicitly define another orthonormal matrix `Q_out` such that `Q_in = Q_out * S`, where `S` is a diagonal matrix with ±1 entries.\n- **Output:** The Householder vectors are stored below the diagonal of the input matrix `A`, and the block reflectors are stored in `T`.\n\n### 2. Matrix Factorization (e.g., Trapezoidal Matrix Factorization)\n- **Purpose:** To factorize matrices by applying orthogonal transformations to introduce zeros.\n- **Mechanism:** The `DLATRZ` routine (and its complex, single, and double complex counterparts) factors an upper trapezoidal matrix `[ A1 A2 ]` into `( R 0 ) * Z`. This is achieved by applying a sequence of elementary Householder reflectors `Z(k)`. Each `Z(k)` is constructed to annihilate specific elements in the matrix, transforming it into the desired form.\n- **Output:** The upper triangular matrix `R` is stored in the leading part of `A`, and the scalar factors (`TAU`) and vectors (`u(k)`) defining the elementary reflectors are stored in `TAU` and parts of `A`, respectively.\n\n### General Application\nHouseholder reflectors are crucial for algorithms that require orthogonal transformations, such as:\n- **QR Decomposition:** Factoring a matrix `A` into an orthogonal matrix `Q` and an upper triangular matrix `R`.\n- **Bidiagonalization:** Reducing a matrix to bidiagonal form, often a step in computing singular value decomposition (SVD).\n- **Hessenberg Reduction:** Reducing a matrix to Hessenberg form, a step in computing eigenvalues.\n\nThe routines typically involve generating an elementary reflector using functions like `DLARFG` and then applying it to a matrix or a part of a matrix using functions like `DLARZ`.\n\n### TL;DR\nHouseholder reflectors are used in LAPACK for **orthogonal transformations and matrix factorizations**, such as reconstructing Householder vectors from orthonormal matrices and factoring trapezoidal matrices, which are fundamental operations in numerical linear algebra algorithms like QR decomposition.",
+      "latencyMs": 20183.37999999523
+    },
+    {
+      "id": "fail-1",
+      "query": "What business rules govern interest calculation?",
+      "feature": "Expected to fail",
+      "expectedToFail": true,
+      "content": "I didn't find evidence of business rules governing interest calculation within the LAPACK codebase. LAPACK is a library for numerical linear algebra, focusing on routines for solving systems of linear equations, eigenvalue problems, and singular value decomposition. It does not typically contain high-level business logic or financial algorithms like interest calculation.",
+      "latencyMs": 3717.935000061989
+    }
+  ]
+}

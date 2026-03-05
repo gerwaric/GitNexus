@@ -11,7 +11,7 @@ import {
 import { isEmbedderReady, disposeEmbedder } from '../core/embeddings/embedder';
 import type { EmbeddingProgress, SemanticSearchResult } from '../core/embeddings/types';
 import type { ProviderConfig, AgentStreamChunk } from '../core/llm/types';
-import { createGraphRAGAgent, streamAgentResponse, type AgentMessage, createChatModel } from '../core/llm/agent';
+import { createGraphRAGAgent, streamAgentResponse, invokeAgent, type AgentMessage, createChatModel } from '../core/llm/agent';
 import { SystemMessage } from '@langchain/core/messages';
 import { enrichClustersBatch, ClusterMemberInfo, ClusterEnrichment } from '../core/ingestion/cluster-enricher';
 import { CommunityNode } from '../core/ingestion/community-processor';
@@ -45,6 +45,18 @@ let storedFileContents: Map<string, string> = new Map();
 // Agent state
 let currentAgent: ReturnType<typeof createGraphRAGAgent> | null = null;
 let currentProviderConfig: ProviderConfig | null = null;
+/** When true, preModelHook will delay before each LLM turn (eval only). */
+let isEvalRun = false;
+/** Delay (ms) before each LLM turn when isEvalRun is true. */
+const EVAL_DELAY_BETWEEN_TURNS_MS = 2000;
+
+/** Hook passed to createReactAgent: delays before each turn when running eval to reduce 429s. */
+const evalPreModelHook = async (state: any, _config: any): Promise<any> => {
+  if (isEvalRun) {
+    await new Promise((r) => setTimeout(r, EVAL_DELAY_BETWEEN_TURNS_MS));
+  }
+  return state;
+};
 let currentGraphResult: PipelineResult | null = null;
 
 // Pending enrichment config (for background processing)
@@ -597,7 +609,8 @@ const workerApi = {
         () => isEmbeddingComplete,
         () => isBM25Ready(),
         storedFileContents,
-        codebaseContext
+        codebaseContext,
+        evalPreModelHook
       );
       currentProviderConfig = config;
 
@@ -662,6 +675,7 @@ const workerApi = {
         () => true,            // isBM25Ready → available via server
         contents,              // fileContents Map
         codebaseContext,
+        evalPreModelHook
       );
 
       currentProviderConfig = config;
@@ -738,6 +752,29 @@ const workerApi = {
    */
   stopChat(): void {
     chatCancelled = true;
+  },
+
+  /**
+   * Run a single query through the agent (non-streaming) for eval.
+   * Does not update chat state. Returns final assistant content and latency.
+   */
+  async runQueryForEval(userMessage: string): Promise<{ content: string; latencyMs: number; error?: string }> {
+    if (!currentAgent) {
+      return { content: '', latencyMs: 0, error: 'Agent not initialized' };
+    }
+    const messages: AgentMessage[] = [{ role: 'user', content: userMessage }];
+    isEvalRun = true;
+    try {
+      const start = performance.now();
+      const result = await invokeAgent(currentAgent, messages);
+      const latencyMs = performance.now() - start;
+      return { content: result, latencyMs };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { content: '', latencyMs: 0, error: message };
+    } finally {
+      isEvalRun = false;
+    }
   },
 
   /**
