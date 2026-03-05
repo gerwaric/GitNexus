@@ -86,6 +86,7 @@ Submission deliverables and supporting docs for the LegacyLens G4 final. Quick i
 | [final-submission/gap-analysis.md](final-submission/gap-analysis.md) | Gaps vs LegacyLens G4: MVP table, target codebase, RAG infrastructure, testing, query interface, code-understanding features. |
 | [final-submission/mitigation-plan.md](final-submission/mitigation-plan.md) | Step-by-step plan executed to close gaps. |
 | [final-submission/ai-cost-analysis.md](final-submission/ai-cost-analysis.md) | AI cost analysis: dev/test costs (Gemini), production projections (100/1K/10K/100K users). |
+| [final-submission/tech-stack.md](final-submission/tech-stack.md) | Tech stack for G4 deployment: backend (Node, KuzuDB, embeddings), browser client (React, Gemini, tools). |
 | [final-submission/test-queries.md](final-submission/test-queries.md) | LAPACK test queries for eval; script: `scripts/lapack-test-queries-performance.mjs`. |
 | [final-submission/eval-test-queries-feature.md](final-submission/eval-test-queries-feature.md) | Run test queries UI: goals, architecture, behavior. |
 | [final-submission/eval-test-queries-implementation-plan.md](final-submission/eval-test-queries-implementation-plan.md) | Implementation plan for the Run test queries UI. |
