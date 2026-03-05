@@ -42,22 +42,25 @@ async function runOneQuery(query, limit = 5) {
   const start = performance.now();
   let success = false;
   let error = null;
+  let response = null;
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, limit, repo: REPO || undefined }),
     });
+    const body = await res.json().catch(() => ({}));
     success = res.ok;
     if (!res.ok) {
-      const t = await res.text();
-      error = `HTTP ${res.status}: ${t.slice(0, 200)}`;
+      error = `HTTP ${res.status}: ${JSON.stringify(body).slice(0, 200)}`;
+    } else {
+      response = body;
     }
   } catch (e) {
     error = e.message || String(e);
   }
   const latencyMs = performance.now() - start;
-  return { latencyMs: Math.round(latencyMs * 100) / 100, success, error };
+  return { latencyMs: Math.round(latencyMs * 100) / 100, success, error, response };
 }
 
 async function main() {
@@ -73,6 +76,7 @@ async function main() {
     const label = q.expectedToFail ? ' [expect fail]' : '';
     process.stdout.write(`  [${i + 1}/${QUERIES.length}] ${q.query.slice(0, 50)}...${label} `);
     const r = await runOneQuery(q.query);
+    const hitCount = r.response?.results?.length ?? 0;
     results.push({
       id: q.id,
       query: q.query,
@@ -81,8 +85,9 @@ async function main() {
       latencyMs: r.latencyMs,
       success: r.success,
       error: r.error || undefined,
+      response: r.response ?? undefined,
     });
-    console.log(`${r.latencyMs}ms ${r.success ? '✓' : '✗ ' + (r.error || '')}`);
+    console.log(`${r.latencyMs}ms ${r.success ? '✓' : '✗'} ${r.success ? `(${hitCount} results)` : (r.error || '')}`);
   }
 
   const ok = results.filter((r) => r.success);
