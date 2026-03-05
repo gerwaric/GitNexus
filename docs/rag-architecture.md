@@ -77,6 +77,16 @@ This document describes the retrieval architecture used by **GitNexus Browser Cl
 Performance is measured by an automated **performance script** that simulates the chat (HTTP to GitNexus + LLM tool loop), runs a list of test queries (see `docs/testing-scenarios.md`), and records latency per query. The script is documented in the repo (see §4.2 of the mitigation plan) and can produce a report (e.g. JSON or markdown).
 
 - **Query latency:** Target &lt;3 s end-to-end per query; actual p50/p95 or min/max are recorded in the report and can be summarized here after a run.
-- **Ingestion:** LAPACK indexing time (from Docker build or one-off `gitnexus analyze`) is recorded once and reported (e.g. “LAPACK indexed in X min”).
+- **Ingestion:** Indexing time (from Docker build or one-off `gitnexus analyze --force`) is recorded once per repo; see the table below.
+
+**How to measure:** Run `time npx gitnexus analyze --force` (or the server equivalent for a repo). Use the **real** time from `time` or the "Repository indexed successfully (Xs)" line from the CLI.
+
+**Ingestion timing (recorded runs):**
+
+| Codebase   | Environment | Language | Files |   LOC   |  Nodes |  Edges | Clusters | KuzuDB |  FTS  | Embeddings | Github URL |
+|------------|-------------|----------|-------|---------|--------|--------|----------|--------|-------|------------|------------|
+| LAPACK     | Production  | Fortran  | 6,681 | 532,619 | 11,179 | 17,570 |      302 |   5.0s | 25.4s |     510.4s | [Reference-LAPACK/lapack](https://github.com/Reference-LAPACK/lapack) |
+| gnucobol   | Production  | COBOL    |   405 | 539,787 |  5,969 |  7,340 |      946 |   3.5s |  4.1s |     210.5s | [OCamlPro/gnucobol](https://github.com/OCamlPro/gnucobol) |
+| CobolCraft | Production  | COBOL    |   292 |  31,671 |   372  |    364 |        2 |   1.3s |  1.9s |      19.1s | [meyfa/CobolCraft](https://github.com/meyfa/CobolCraft) |
 
 **Current status:** To be filled after running the performance script — see §4.2 of the mitigation plan. Run a small set of queries against the deployed app (or local backend + GitNexus Browser Client), record latency and ingestion time, then add a short summary here (e.g. “Latency p50 X.X s, p95 X.X s; ingestion X min for LAPACK”) and reference the report file if one exists.

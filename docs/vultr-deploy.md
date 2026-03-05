@@ -277,13 +277,15 @@ SSH in, then (as `gitnexus` to avoid git “dubious ownership”):
 ```bash
 sudo -u gitnexus git -C /opt/gitnexus pull --ff-only
 sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c 'cd /opt/gitnexus/gitnexus && npm install && npm run build'
-sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c 'cd /opt/gitnexus/gitnexus-web && export ONNXRUNTIME_NODE_INSTALL=skip && npm ci && npm run build'
+sudo -u gitnexus env HOME=/var/lib/gitnexus bash -c 'cd /opt/gitnexus/gitnexus-web && export ONNXRUNTIME_NODE_INSTALL=skip NODE_OPTIONS=--max-old-space-size=2048 && npm ci && npm run build'
 sudo systemctl restart gitnexus
 ```
 
 **Why `npm install` in backend:** The backend depends on vendored grammars (`file:vendor/tree-sitter-cobol`, `file:vendor/tree-sitter-fortran`). After pull, run `npm install` so those are linked into `node_modules` before `npm run build`; otherwise TypeScript fails with “Cannot find module 'tree-sitter-cobol'”.
 
 **Why `HOME=/var/lib/gitnexus`:** The `gitnexus` user often has no real home dir (or it's not writable). Setting `HOME=/var/lib/gitnexus` gives npm a writable location for cache and logs; the service uses the same value. If that directory doesn't exist yet, create it: `sudo mkdir -p /var/lib/gitnexus && sudo chown gitnexus:gitnexus /var/lib/gitnexus`.
+
+**Memory:** The web build is memory-hungry. The command above sets Node's heap to 2 GB (`NODE_OPTIONS=--max-old-space-size=2048`), matching the setup script. If the build still runs out of memory, ensure a 2 GB swap file exists (the setup script creates `/swapfile`), or increase the value (e.g. `4096` for 4 GB).
 
 Or run the setup script again (it will pull and rebuild):
 
