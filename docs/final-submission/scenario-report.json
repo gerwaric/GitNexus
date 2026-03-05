@@ -1,0 +1,113 @@
+{
+  "ranAt": "2026-03-05T03:53:18.381Z",
+  "backendUrl": "http://127.0.0.1:4747",
+  "repo": "lapack",
+  "model": "gemini-2.5-flash",
+  "scenarios": true,
+  "note": "10 queries from docs/testing-scenarios.md; use results[].content to fill Outcomes table",
+  "usage": {
+    "promptTokens": 38112,
+    "completionTokens": 2077,
+    "totalTokenCount": 43675,
+    "costInput": 0.0114336,
+    "costOutput": 0.005192499999999999,
+    "costTotal": 0.016626099999999998,
+    "pricingPer1M": {
+      "input": 0.3,
+      "output": 2.5
+    }
+  },
+  "queriesRun": 10,
+  "results": [
+    {
+      "id": "1",
+      "query": "Where is the main entry point of this program?",
+      "feature": "Main entry point",
+      "expectedToFail": false,
+      "contentLength": 564,
+      "content": "I couldn't find a clear main entry point like `main.py` or `app.py` in the initial search. The results suggest a project focused on numerical computing and testing, possibly a library rather than a standalone application.\n\nTo determine the main entry point, I need more context. Could you provide more information about the project type or what you expect the main functionality to be?\n\nIn the meantime, I will try to search for common Python entry point patterns like `if __name__ == \"__main__\":` to see if any files explicitly define an execution starting point.",
+      "error": null
+    },
+    {
+      "id": "2",
+      "query": "What does the routine dgemm do?",
+      "feature": "dgemm",
+      "expectedToFail": false,
+      "contentLength": 759,
+      "content": "The `dgemm` routine, specifically `cblas_dgemm`, performs a general matrix multiplication of double-precision floating-point numbers. It computes `C = alpha * op(A) * op(B) + beta * C`, where `op(A)` and `op(B)` are either the matrices A and B or their transposes, `alpha` and `beta` are scalar values, and `C` is the resulting matrix.\n\nThe function signature is:\n`void cblas_dgemm(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const CBLAS_INT M, const CBLAS_INT N, const CBLAS_INT K, const double alpha, const double *A, const CBLAS_INT lda, const double *B, const CBLAS_INT ldb, const double beta, double *C, const CBLAS_INT ldc);` [[CBLAS/include/cblas.h:511]]\n\nTL;DR: `dgemm` performs double-precision general matrix multiplication.",
+      "error": null
+    },
+    {
+      "id": "3",
+      "query": "What are the dependencies of the module or routine that computes eigenvalues?",
+      "feature": "Eigenvalue dependencies",
+      "expectedToFail": false,
+      "contentLength": 254,
+      "content": "I am unable to determine the dependencies of the `dsyevr` routine. My attempts to query the code graph for call relationships and to read the file directly have failed. The file `SRC/dsyevr.f` could not be found, despite being returned in search results.",
+      "error": null
+    },
+    {
+      "id": "4",
+      "query": "Where is the Cholesky factorization implemented?",
+      "feature": "Cholesky",
+      "expectedToFail": false,
+      "contentLength": 641,
+      "content": "The Cholesky factorization is implemented in several files, likely for different data types and matrix storage formats. The `*potf2.f` files (e.g., `spotf2.f`, `dpotf2.f`, `cpotf2.f`, `zpotf2.f`) appear to be for general Cholesky factorization, while `*pbtf2.f` files (e.g., `spbtf2.f`, `dpbtf2.f`, `cpbtf2.f`, `zpbtf2.f`) seem to handle banded matrices. There's also `spptrf.f`, which might be for packed matrices.\n\nTL;DR: Cholesky factorization is implemented in `spotf2.f`, `dpotf2.f`, `cpotf2.f`, `zpotf2.f` for general matrices, and `spbtf2.f`, `dpbtf2.f`, `cpbtf2.f`, `zpbtf2.f` for banded matrices, and `spptrf.f` for packed matrices.",
+      "error": null
+    },
+    {
+      "id": "5",
+      "query": "Find all file I/O operations in the codebase.",
+      "feature": "File I/O",
+      "expectedToFail": false,
+      "contentLength": 106,
+      "content": "I couldn't find `lapack_testing.py`. I'll try a more targeted search for common Python file I/O functions.",
+      "error": null
+    },
+    {
+      "id": "6",
+      "query": "Show me error handling patterns in this codebase.",
+      "feature": "Error handling",
+      "expectedToFail": false,
+      "contentLength": 1640,
+      "content": "The codebase primarily uses `XERBLA` for error handling, particularly in Fortran routines. This function is called when an invalid parameter is detected in a BLAS or LAPACK routine.\n\nHere's an example from `BLAS/SRC/xerbla.f`:\nThe `XERBLA` subroutine takes `SRNAME` (subroutine name) and `INFO` (parameter number with error) as arguments. It prints an error message to standard error and then aborts the program.\n\nExample:\n```fortran\n      SUBROUTINE XERBLA( SRNAME, INFO )\n*\n*  -- LAPACK error routine (version 3.2) --\n*     -- LAPACK is a software package provided by Univ. of Tennessee,    --\n*     -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--\n*     November 2006\n*\n*     .. Scalar Arguments ..\n      CHARACTER*(*) SRNAME\n      INTEGER INFO\n*     ..\n*\n*  Purpose\n*  =======\n*\n*  XERBLA  is an error handler for the LAPACK routines. It is called\n*  by an LAPACK routine if an input parameter has an invalid value.\n*\n*  Parameters\n*  ==========\n*\n*  SRNAME  (input) CHARACTER*(*)\n*          The name of the routine which called XERBLA.\n*\n*  INFO    (input) INTEGER\n*          The position of the invalid parameter in the parameter list\n*          of the  calling routine.\n*\n*     .. Executable Statements ..\n      WRITE( 6, FMT=9999 ) SRNAME, INFO\n*\n      STOP\n*\n 9999 FORMAT( ' ** On entry to ', A, ':  parameter number ', I2, ' had ',\n     $        'an illegal value' )\n*\n      END\n```\n[[BLAS/SRC/xerbla.f:1]]\n\nTL;DR: The primary error handling pattern involves calling the `XERBLA` subroutine with the routine name and the invalid parameter's index, which then prints an error message and stops the program.",
+      "error": null
+    },
+    {
+      "id": "7",
+      "query": "What BLAS routines does LAPACK call for matrix multiplication?",
+      "feature": "BLAS matrix mult",
+      "expectedToFail": false,
+      "contentLength": 444,
+      "content": "LAPACK calls BLAS routines for matrix multiplication, specifically the `_GEMM` and `_GEMMTR` routines. The prefix before \"GEMM\" or \"GEMMTR\" indicates the data type, such as `d` for double-precision, `s` for single-precision, `z` for double-precision complex, and `c` for single-precision complex.\n\n[[CBLAS/testing/c_xerbla.c:43]]\n[[CBLAS/testing/c_xerbla.c:49]]\n\nTL;DR: LAPACK uses `_GEMM` and `_GEMMTR` BLAS routines for matrix multiplication.",
+      "error": null
+    },
+    {
+      "id": "8",
+      "query": "Where is the singular value decomposition (SVD) implemented?",
+      "feature": "SVD",
+      "expectedToFail": false,
+      "contentLength": 419,
+      "content": "The singular value decomposition (SVD) is implemented in the following files:\n\n*   `SRC/dgesvj.f`\n*   `SRC/sgesvj.f`\n*   `SRC/dgejsv.f`\n*   `SRC/sgejsv.f`\n*   `SRC/cgesvj.f`\n*   `SRC/zgesvj.f`\n\nThese files likely correspond to different precisions and variations of the SVD algorithm.\n\nTL;DR: SVD implementations are in `SRC/dgesvj.f`, `SRC/sgesvj.f`, `SRC/dgejsv.f`, `SRC/sgejsv.f`, `SRC/cgesvj.f`, and `SRC/zgesvj.f`.",
+      "error": null
+    },
+    {
+      "id": "9",
+      "query": "What would be affected if I change routine dgetrf?",
+      "feature": "Impact dgetrf",
+      "expectedToFail": false,
+      "contentLength": 92,
+      "content": "I couldn't find `dgetrf` in the codebase. Could you provide more context or verify the name?",
+      "error": null
+    },
+    {
+      "id": "10",
+      "query": "Explain what the dsyev subroutine does and where it is defined.",
+      "feature": "dsyev",
+      "expectedToFail": false,
+      "contentLength": 237,
+      "content": "The `dsyev` subroutine is defined in `SRC/dsyev.f`. It computes all eigenvalues and, optionally, eigenvectors of a real symmetric matrix.\n\nTL;DR: `dsyev` calculates eigenvalues and eigenvectors of a real symmetric matrix. [[SRC/dsyev.f]]",
+      "error": null
+    }
+  ]
+}

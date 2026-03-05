@@ -1,0 +1,157 @@
+{
+  "ranAt": "2026-03-05T03:33:36.247Z",
+  "backendUrl": "http://127.0.0.1:4747",
+  "repo": "lapack",
+  "model": "gemini-2.5-flash",
+  "usage": {
+    "promptTokens": 234682,
+    "completionTokens": 4149,
+    "totalTokenCount": 246797,
+    "costInput": 0.0704046,
+    "costOutput": 0.0103725,
+    "costTotal": 0.08077709999999999,
+    "pricingPer1M": {
+      "input": 0.3,
+      "output": 2.5
+    }
+  },
+  "queriesRun": 17,
+  "results": [
+    {
+      "id": "ce-1",
+      "query": "What does the routine dgemm do?",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "contentLength": 619,
+      "error": null
+    },
+    {
+      "id": "ce-2",
+      "query": "Explain what the dsyev subroutine does and where it is defined.",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "contentLength": 237,
+      "error": null
+    },
+    {
+      "id": "ce-3",
+      "query": "What does the routine dgetrf do?",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "contentLength": 737,
+      "error": null
+    },
+    {
+      "id": "ce-4",
+      "query": "Explain what dpotrf does and how it relates to Cholesky factorization.",
+      "feature": "Code Explanation",
+      "expectedToFail": false,
+      "contentLength": 576,
+      "error": null
+    },
+    {
+      "id": "dm-1",
+      "query": "What are the dependencies of the module or routine that computes eigenvalues?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "contentLength": 497,
+      "error": null
+    },
+    {
+      "id": "dm-2",
+      "query": "What BLAS routines does LAPACK call for matrix multiplication?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "contentLength": 308,
+      "error": null
+    },
+    {
+      "id": "dm-3",
+      "query": "What does the dgesvd routine call internally?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "contentLength": 660,
+      "error": null
+    },
+    {
+      "id": "dm-4",
+      "query": "What routines does dgetrs depend on?",
+      "feature": "Dependency Mapping",
+      "expectedToFail": false,
+      "contentLength": 199,
+      "error": null
+    },
+    {
+      "id": "ia-1",
+      "query": "What would be affected if I change routine dgetrf?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "contentLength": 118,
+      "error": null
+    },
+    {
+      "id": "ia-2",
+      "query": "What would break if I modify dpotrf?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "contentLength": 111,
+      "error": null
+    },
+    {
+      "id": "ia-3",
+      "query": "What depends on the SVD routine dgesvd?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "contentLength": 124,
+      "error": null
+    },
+    {
+      "id": "ia-4",
+      "query": "Who calls dgetrs?",
+      "feature": "Impact Analysis",
+      "expectedToFail": false,
+      "contentLength": 180,
+      "error": null
+    },
+    {
+      "id": "pd-1",
+      "query": "Show me error handling patterns in this codebase.",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "contentLength": 1195,
+      "error": null
+    },
+    {
+      "id": "pd-2",
+      "query": "Where does LAPACK check INFO before continuing?",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "contentLength": 1460,
+      "error": null
+    },
+    {
+      "id": "pd-3",
+      "query": "Find routines that allocate workspace with LWORK.",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "contentLength": 2112,
+      "error": null
+    },
+    {
+      "id": "pd-4",
+      "query": "Where are Householder reflectors used?",
+      "feature": "Pattern Detection",
+      "expectedToFail": false,
+      "contentLength": 409,
+      "error": null
+    },
+    {
+      "id": "fail-1",
+      "query": "What business rules govern interest calculation?",
+      "feature": "Expected to fail",
+      "expectedToFail": true,
+      "contentLength": 87,
+      "error": null
+    }
+  ]
+}

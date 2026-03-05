@@ -62,7 +62,7 @@ All of the following are in **[docs/rag-architecture.md](../rag-architecture.md)
 | **mitigation-plan.md** | Step-by-step plan executed to close gaps. |
 | **mitigation-plan-prompt.md** | Prompt used to generate the mitigation plan. |
 | **execute-mitigation-plan-prompt.md** | Prompt used to have an agent execute the mitigation plan. |
-| **ai-cost-analysis.md** | AI Cost Analysis deliverable (structure + placeholders). |
+| **ai-cost-analysis.md** | AI Cost Analysis deliverable (structure + placeholders). Run `scripts/ai-cost-eval.mjs` with BACKEND_URL + GEMINI_API_KEY to get token usage and cost for the 17-query eval; use output to fill dev table and production assumptions. |
 | **test-queries.md** | LAPACK test queries (4 features + 1 expected-to-fail); script: **scripts/lapack-test-queries-performance.mjs**. |
 | **eval-test-queries-feature.md** | Eval Test Queries UI — feature doc (goals, architecture, behavior). |
 | **eval-test-queries-implementation-plan.md** | Step-by-step implementation plan for the Run test queries UI. |
@@ -76,6 +76,6 @@ All of the following are in **[docs/rag-architecture.md](../rag-architecture.md)
 ## Still to be filled by the author
 
 - **RAG doc §6 (Performance results):** Run `BACKEND_URL=https://gitnexus.smallcatlabs.com node scripts/lapack-test-queries-performance.mjs [--output report.json]` (see **docs/final-submission/test-queries.md**), then add a short latency summary to **docs/rag-architecture.md** §6. Alternative: `scripts/performance-query-latency.mjs --all` for the original 10 scenarios.
-- **AI Cost Analysis:** Add Google Gemini dev/test usage and dollar estimates to **docs/final-submission/ai-cost-analysis.md** (dev table + production table).
+- **AI Cost Analysis:** Run `BACKEND_URL=... GEMINI_API_KEY=... node scripts/ai-cost-eval.mjs [--output report.json]` to get token usage and estimated cost for the 17-query eval; copy totals into **docs/final-submission/ai-cost-analysis.md** (dev table + production example). Optionally add Google AI Studio usage if available.
 - **Testing-scenarios Outcomes:** Run the 10 scenarios (manual or scripted), then fill the Outcomes table in **docs/testing-scenarios.md**.
 - **Demo video** and **social post:** Create, host, and link/publish per assignment (out of scope for the mitigation plan).
